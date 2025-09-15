@@ -143,6 +143,10 @@ msgstr "{name}を削除してもよろしいですか？"
 msgid "Are you sure?"
 msgstr "よろしいですか？"
 
+#: src/components/routes/system.tsx
+msgid "Atmospheric pressure"
+msgstr ""
+
 #: src/components/copy-to-clipboard.tsx
 msgid "Automatic copy requires a secure context."
 msgstr "自動コピーには安全なコンテキストが必要です。"
@@ -266,6 +270,18 @@ msgstr "システムをクリックして詳細を表示します。"
 #: src/components/ui/input-copy.tsx
 msgid "Click to copy"
 msgstr "クリックしてコピー"
+
+#: src/components/routes/system.tsx
+msgid "CO2"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "CO2 concentration"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "Coarse particulate matter concentration"
+msgstr ""
 
 #: src/components/login/forgot-pass-form.tsx
 #: src/components/login/forgot-pass-form.tsx
@@ -452,6 +468,7 @@ msgstr "編集"
 
 #: src/components/login/auth-form.tsx
 #: src/components/login/forgot-pass-form.tsx
+#: src/components/login/otp-forms.tsx
 msgid "Email"
 msgstr "メール"
 
@@ -471,6 +488,10 @@ msgstr "パスワードをリセットするためにメールアドレスを入
 #: src/components/routes/settings/notifications.tsx
 msgid "Enter email address..."
 msgstr "メールアドレスを入力..."
+
+#: src/components/login/otp-forms.tsx
+msgid "Enter your one-time password."
+msgstr ""
 
 #: src/components/login/auth-form.tsx
 #: src/components/routes/settings/alerts-history-data-table.tsx
@@ -530,6 +551,10 @@ msgstr "アラートの更新に失敗しました"
 msgid "Filter..."
 msgstr "フィルター..."
 
+#: src/components/routes/system.tsx
+msgid "Fine particulate matter concentration"
+msgstr ""
+
 #: src/components/routes/settings/tokens-fingerprints.tsx
 msgid "Fingerprint"
 msgstr "フィンガープリント"
@@ -541,6 +566,12 @@ msgstr "<0>{min}</0> {min, plural, one {分} other {分}}の間"
 #: src/components/login/auth-form.tsx
 msgid "Forgot password?"
 msgstr "パスワードをお忘れですか？"
+
+#: src/components/add-system.tsx
+#: src/components/routes/settings/tokens-fingerprints.tsx
+msgctxt "Button to copy install command"
+msgid "FreeBSD command"
+msgstr ""
 
 #. Context: Battery state
 #: src/lib/i18n.ts
@@ -570,6 +601,10 @@ msgstr "Homebrew コマンド"
 #: src/components/add-system.tsx
 msgid "Host / IP"
 msgstr "ホスト / IP"
+
+#: src/components/routes/system.tsx
+msgid "Humidity"
+msgstr ""
 
 #. Context: Battery state
 #: src/lib/i18n.ts
@@ -645,6 +680,7 @@ msgid "Manage display and notification preferences."
 msgstr "表示と通知の設定を管理します。"
 
 #: src/components/add-system.tsx
+#: src/components/routes/settings/tokens-fingerprints.tsx
 msgid "Manual setup instructions"
 msgstr "手動セットアップの手順"
 
@@ -714,6 +750,10 @@ msgstr "OAuth 2 / OIDCサポート"
 #: src/components/routes/settings/config-yaml.tsx
 msgid "On each restart, systems in the database will be updated to match the systems defined in the file."
 msgstr "再起動のたびに、データベース内のシステムはファイルに定義されたシステムに一致するように更新されます。"
+
+#: src/components/login/auth-form.tsx
+msgid "One-time password"
+msgstr ""
 
 #: src/components/routes/settings/tokens-fingerprints.tsx
 #: src/components/routes/settings/tokens-fingerprints.tsx
@@ -805,6 +845,14 @@ msgstr "手順については<0>ドキュメント</0>を参照してくださ�
 msgid "Please sign in to your account"
 msgstr "アカウントにサインインしてください"
 
+#: src/components/routes/system.tsx
+msgid "PM10"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "PM2.5"
+msgstr ""
+
 #: src/components/add-system.tsx
 msgid "Port"
 msgstr "ポート"
@@ -817,6 +865,10 @@ msgstr "記録された時点での正確な利用"
 #: src/components/routes/settings/general.tsx
 msgid "Preferred Language"
 msgstr "優先言語"
+
+#: src/components/routes/system.tsx
+msgid "Pressure"
+msgstr ""
 
 #. Use 'Key' if your language requires many more characters
 #: src/components/add-system.tsx
@@ -832,6 +884,18 @@ msgstr "読み取り"
 #: src/components/routes/system.tsx
 msgid "Received"
 msgstr "受信"
+
+#: src/components/routes/system.tsx
+msgid "Relative humidity of sensors"
+msgstr ""
+
+#: src/components/login/login.tsx
+msgid "Request a one-time password"
+msgstr ""
+
+#: src/components/login/otp-forms.tsx
+msgid "Request OTP"
+msgstr ""
 
 #: src/components/login/forgot-pass-form.tsx
 msgid "Reset Password"
@@ -889,8 +953,8 @@ msgid "Set percentage thresholds for meter colors."
 msgstr "メーターの色を変更するしきい値（パーセンテージ）を設定します。"
 
 #: src/components/routes/settings/general.tsx
-msgid "Sets the default time range for charts when a system is viewed."
-msgstr "システムを表示する際のチャートのデフォルトの時間範囲を設定します。"
+#~ msgid "Sets the default time range for charts when a system is viewed."
+#~ msgstr "システムを表示する際のチャートのデフォルトの時間範囲を設定します。"
 
 #: src/components/command-palette.tsx
 #: src/components/command-palette.tsx
@@ -910,6 +974,38 @@ msgstr "サインイン"
 #: src/components/command-palette.tsx
 msgid "SMTP settings"
 msgstr "SMTP設定"
+
+#: src/lib/alerts.ts
+msgid "SNMP CO2"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Humidity"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP PM10"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP PM2.5"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Pressure"
+msgstr ""
+
+#: src/components/systems-table/systems-table.tsx
+msgid "SNMP Sensors"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Temperature"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP VOC"
+msgstr ""
 
 #: src/components/systems-table/systems-table.tsx
 msgid "Sort By"
@@ -1002,6 +1098,10 @@ msgstr "{extraFsName}のスループット"
 msgid "Throughput of root filesystem"
 msgstr "ルートファイルシステムのスループット"
 
+#: src/components/routes/settings/general.tsx
+msgid "Time format"
+msgstr ""
+
 #: src/components/routes/settings/notifications.tsx
 msgid "To email(s)"
 msgstr "宛先メールアドレス"
@@ -1049,6 +1149,34 @@ msgstr "5分間の負荷平均がしきい値を超えたときにトリガー�
 #: src/lib/alerts.ts
 msgid "Triggers when any sensor exceeds a threshold"
 msgstr "センサーがしきい値を超えたときにトリガーされます"
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP CO2 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP humidity sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP PM10 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP PM2.5 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP pressure sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP temperature sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP VOC sensor exceeds a threshold"
+msgstr ""
 
 #: src/lib/alerts.ts
 msgid "Triggers when combined up/down exceeds a threshold"
@@ -1135,6 +1263,14 @@ msgstr "直近200件のアラートを表示します。"
 #: src/components/systems-table/systems-table.tsx
 msgid "Visible Fields"
 msgstr "表示列"
+
+#: src/components/routes/system.tsx
+msgid "VOC"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "Volatile organic compounds"
+msgstr ""
 
 #: src/components/routes/system.tsx
 msgid "Waiting for enough records to display"

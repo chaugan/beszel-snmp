@@ -68,6 +68,18 @@ export const AlertDialogContent = memo(function AlertDialogContent({ system }: {
 	const [currentTab, setCurrentTab] = useState("system")
 
 	const systemAlerts = alerts[system.id] ?? new Map()
+	const isSnmpAgent = system.info?.a === "snmp"
+
+	// Filter alert keys based on system type
+	const filteredAlertKeys = useMemo(() => {
+		if (isSnmpAgent) {
+			// For SNMP agents, show only SNMP sensor alerts
+			return alertKeys.filter(key => key.startsWith('SNMP'))
+		} else {
+			// For regular agents, show only non-SNMP alerts
+			return alertKeys.filter(key => !key.startsWith('SNMP'))
+		}
+	}, [isSnmpAgent])
 
 	// We need to keep a copy of alerts when we switch to global tab. If we always compare to
 	// current alerts, it will only be updated when first checked, then won't be updated because
@@ -105,7 +117,7 @@ export const AlertDialogContent = memo(function AlertDialogContent({ system }: {
 				</TabsList>
 				<TabsContent value="system">
 					<div className="grid gap-3">
-						{alertKeys.map((name) => (
+						{filteredAlertKeys.map((name) => (
 							<AlertContent
 								key={name}
 								alertKey={name}
@@ -130,7 +142,7 @@ export const AlertDialogContent = memo(function AlertDialogContent({ system }: {
 						<Trans>Overwrite existing alerts</Trans>
 					</label>
 					<div className="grid gap-3">
-						{alertKeys.map((name) => (
+						{filteredAlertKeys.map((name) => (
 							<AlertContent
 								key={name}
 								alertKey={name}

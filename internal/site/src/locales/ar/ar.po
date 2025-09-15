@@ -143,6 +143,10 @@ msgstr "هل أنت متأكد أنك تريد حذف {name}؟"
 msgid "Are you sure?"
 msgstr "هل أنت متأكد؟"
 
+#: src/components/routes/system.tsx
+msgid "Atmospheric pressure"
+msgstr ""
+
 #: src/components/copy-to-clipboard.tsx
 msgid "Automatic copy requires a secure context."
 msgstr "النسخ التلقائي يتطلب سياقًا آمنًا."
@@ -266,6 +270,18 @@ msgstr "انقر على نظام لعرض مزيد من المعلومات."
 #: src/components/ui/input-copy.tsx
 msgid "Click to copy"
 msgstr "انقر للنسخ"
+
+#: src/components/routes/system.tsx
+msgid "CO2"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "CO2 concentration"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "Coarse particulate matter concentration"
+msgstr ""
 
 #: src/components/login/forgot-pass-form.tsx
 #: src/components/login/forgot-pass-form.tsx
@@ -452,6 +468,7 @@ msgstr "تعديل"
 
 #: src/components/login/auth-form.tsx
 #: src/components/login/forgot-pass-form.tsx
+#: src/components/login/otp-forms.tsx
 msgid "Email"
 msgstr "البريد الإشباكي"
 
@@ -471,6 +488,10 @@ msgstr "أدخل عنوان البريد الإشباكي لإعادة تعيي�
 #: src/components/routes/settings/notifications.tsx
 msgid "Enter email address..."
 msgstr "أدخل عنوان البريد الإشباكي..."
+
+#: src/components/login/otp-forms.tsx
+msgid "Enter your one-time password."
+msgstr ""
 
 #: src/components/login/auth-form.tsx
 #: src/components/routes/settings/alerts-history-data-table.tsx
@@ -530,6 +551,10 @@ msgstr "فشل في تحديث التنبيه"
 msgid "Filter..."
 msgstr "تصفية..."
 
+#: src/components/routes/system.tsx
+msgid "Fine particulate matter concentration"
+msgstr ""
+
 #: src/components/routes/settings/tokens-fingerprints.tsx
 msgid "Fingerprint"
 msgstr "البصمة"
@@ -541,6 +566,12 @@ msgstr "لمدة <0>{min}</0> {min, plural, one {دقيقة} other {دقائق}}
 #: src/components/login/auth-form.tsx
 msgid "Forgot password?"
 msgstr "هل نسيت كلمة المرور؟"
+
+#: src/components/add-system.tsx
+#: src/components/routes/settings/tokens-fingerprints.tsx
+msgctxt "Button to copy install command"
+msgid "FreeBSD command"
+msgstr ""
 
 #. Context: Battery state
 #: src/lib/i18n.ts
@@ -570,6 +601,10 @@ msgstr "أمر Homebrew"
 #: src/components/add-system.tsx
 msgid "Host / IP"
 msgstr "مضيف / IP"
+
+#: src/components/routes/system.tsx
+msgid "Humidity"
+msgstr ""
 
 #. Context: Battery state
 #: src/lib/i18n.ts
@@ -645,6 +680,7 @@ msgid "Manage display and notification preferences."
 msgstr "إدارة تفضيلات العرض والإشعارات."
 
 #: src/components/add-system.tsx
+#: src/components/routes/settings/tokens-fingerprints.tsx
 msgid "Manual setup instructions"
 msgstr "تعليمات الإعداد اليدوي"
 
@@ -714,6 +750,10 @@ msgstr "دعم OAuth 2 / OIDC"
 #: src/components/routes/settings/config-yaml.tsx
 msgid "On each restart, systems in the database will be updated to match the systems defined in the file."
 msgstr "في كل إعادة تشغيل، سيتم تحديث الأنظمة في قاعدة البيانات لتتطابق مع الأنظمة المعرفة في الملف."
+
+#: src/components/login/auth-form.tsx
+msgid "One-time password"
+msgstr ""
 
 #: src/components/routes/settings/tokens-fingerprints.tsx
 #: src/components/routes/settings/tokens-fingerprints.tsx
@@ -805,6 +845,14 @@ msgstr "يرجى الاطلاع على <0>التوثيق</0> للحصول على
 msgid "Please sign in to your account"
 msgstr "يرجى تسجيل الدخول إلى حسابك"
 
+#: src/components/routes/system.tsx
+msgid "PM10"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "PM2.5"
+msgstr ""
+
 #: src/components/add-system.tsx
 msgid "Port"
 msgstr "المنفذ"
@@ -817,6 +865,10 @@ msgstr "الاستخدام الدقيق في الوقت المسجل"
 #: src/components/routes/settings/general.tsx
 msgid "Preferred Language"
 msgstr "اللغة المفضلة"
+
+#: src/components/routes/system.tsx
+msgid "Pressure"
+msgstr ""
 
 #. Use 'Key' if your language requires many more characters
 #: src/components/add-system.tsx
@@ -832,6 +884,18 @@ msgstr "قراءة"
 #: src/components/routes/system.tsx
 msgid "Received"
 msgstr "تم الاستلام"
+
+#: src/components/routes/system.tsx
+msgid "Relative humidity of sensors"
+msgstr ""
+
+#: src/components/login/login.tsx
+msgid "Request a one-time password"
+msgstr ""
+
+#: src/components/login/otp-forms.tsx
+msgid "Request OTP"
+msgstr ""
 
 #: src/components/login/forgot-pass-form.tsx
 msgid "Reset Password"
@@ -889,8 +953,8 @@ msgid "Set percentage thresholds for meter colors."
 msgstr "تعيين عتبات النسبة المئوية لألوان العداد."
 
 #: src/components/routes/settings/general.tsx
-msgid "Sets the default time range for charts when a system is viewed."
-msgstr "يحدد النطاق الزمني الافتراضي للرسوم البيانية عند عرض النظام."
+#~ msgid "Sets the default time range for charts when a system is viewed."
+#~ msgstr "يحدد النطاق الزمني الافتراضي للرسوم البيانية عند عرض النظام."
 
 #: src/components/command-palette.tsx
 #: src/components/command-palette.tsx
@@ -910,6 +974,38 @@ msgstr "تسجيل الدخول"
 #: src/components/command-palette.tsx
 msgid "SMTP settings"
 msgstr "إعدادات SMTP"
+
+#: src/lib/alerts.ts
+msgid "SNMP CO2"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Humidity"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP PM10"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP PM2.5"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Pressure"
+msgstr ""
+
+#: src/components/systems-table/systems-table.tsx
+msgid "SNMP Sensors"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Temperature"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP VOC"
+msgstr ""
 
 #: src/components/systems-table/systems-table.tsx
 msgid "Sort By"
@@ -1002,6 +1098,10 @@ msgstr "معدل نقل {extraFsName}"
 msgid "Throughput of root filesystem"
 msgstr "معدل نقل نظام الملفات الجذر"
 
+#: src/components/routes/settings/general.tsx
+msgid "Time format"
+msgstr ""
+
 #: src/components/routes/settings/notifications.tsx
 msgid "To email(s)"
 msgstr "إلى البريد الإشباكي"
@@ -1049,6 +1149,34 @@ msgstr "يتم التفعيل عندما يتجاوز متوسط التحميل 
 #: src/lib/alerts.ts
 msgid "Triggers when any sensor exceeds a threshold"
 msgstr "يتم التفعيل عندما ��تجاوز أي مستشعر عتبة معينة"
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP CO2 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP humidity sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP PM10 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP PM2.5 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP pressure sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP temperature sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP VOC sensor exceeds a threshold"
+msgstr ""
 
 #: src/lib/alerts.ts
 msgid "Triggers when combined up/down exceeds a threshold"
@@ -1135,6 +1263,14 @@ msgstr "عرض أحدث 200 تنبيه."
 #: src/components/systems-table/systems-table.tsx
 msgid "Visible Fields"
 msgstr "الأعمدة الظاهرة"
+
+#: src/components/routes/system.tsx
+msgid "VOC"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "Volatile organic compounds"
+msgstr ""
 
 #: src/components/routes/system.tsx
 msgid "Waiting for enough records to display"

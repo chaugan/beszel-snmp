@@ -51,6 +51,79 @@ The [quick start guide](https://beszel.dev/guide/getting-started) and other docu
 - **GPU usage / temperature / power draw** - Nvidia and AMD only. Must use binary agent.
 - **Battery** - Host system battery charge.
 
+### Additional sensors via SNMP agent (extended)
+
+When using the included SNMP hub agent, Beszel can ingest additional environmental sensor categories. The hub UI only shows charts for categories that have data.
+
+Supported categories and units:
+- Temperature — °C / °F
+- Humidity — %
+- CO2 — ppm
+- Pressure — hPa
+- PM2.5 — µg/m³
+- PM10 — µg/m³
+- VOC — ppb
+
+UI behavior in All Systems:
+- Main table lists standard agents (CPU/memory/etc.).
+- SNMP systems are listed in a separate "SNMP Sensors" table below, with columns for the categories above.
+- Cells populate only when the system has data in that category (blank otherwise).
+
+## SNMP hub agent
+
+This repository includes an optional SNMP hub agent that listens for/polls SNMP devices and forwards metrics to the Beszel hub as a "SNMP" agent. OS charts are hidden for SNMP agents; only relevant sensor charts are shown.
+
+- Source: `internal/cmd/snmp-hub-agent`
+- Config example: `configs/snmp-hub.v2c.example.json`
+
+Build only the SNMP hub agent (no UI build required):
+
+- make build-snmp-hub-agent
+  - Output: `./build/beszel-snmp-agent_<os>_<arch>`
+
+Run:
+
+- ./build/beszel-snmp-agent_<os>_<arch> ./configs/snmp-hub.v2c.example.json
+
+Config highlights (v2c):
+- `hub.url` – Hub URL (e.g., http://<hub>:8090)
+- `hub.token` – Hub API token
+- `hub.key` – Public key used to register the system
+- `defaults.*` – Global polling and listener settings
+- `devices[].oids` – Map of OID -> { name, kind, unit, category, scale }
+  - category accepts: temperature, humidity, co2, pressure, pm25, pm10, voc
+  - unit should match the list above where applicable
+
+## Building and publishing a custom Hub image
+
+You can build and publish your own Hub image (for example, to Docker Hub under `chaugan/beszel`) and use it in unRaid.
+
+1. Build the web UI (required for embedding):
+   - With bun:
+     - bun install --cwd ./internal/site
+     - bun run --cwd ./internal/site build
+   - Or with npm:
+     - npm ci --prefix ./internal/site
+     - npm run --prefix ./internal/site build
+
+2. Log in to Docker Hub:
+   - docker login -u <your_dockerhub_username>
+
+3. Build and push the image:
+   - Single-arch (amd64):
+     - docker build -f ./internal/dockerfile_hub -t chaugan/beszel:snmp-dev .
+     - docker push chaugan/beszel:snmp-dev
+   - Multi-arch (recommended):
+     - docker buildx create --use
+     - docker buildx build --platform linux/amd64,linux/arm64 -f ./internal/dockerfile_hub -t chaugan/beszel:latest -t chaugan/beszel:snmp-YYYYMMDD --push .
+
+4. Use in unRaid:
+   - Set the container Repository to `chaugan/beszel:latest` (or your chosen tag) in the template and apply updates.
+
+Notes:
+- No GitHub fork is required to publish a custom image. A fork is useful for version control and CI.
+- The hub UI now detects `AgentType=snmp` and only renders sensor charts that have data.
+
 ## Help and discussion
 
 Please search existing issues and discussions before opening a new one. I try my best to respond, but may not always have time to do so.

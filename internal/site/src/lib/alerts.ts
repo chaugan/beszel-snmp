@@ -1,5 +1,5 @@
 import { t } from "@lingui/core/macro"
-import { CpuIcon, HardDriveIcon, HourglassIcon, MemoryStickIcon, ServerIcon, ThermometerIcon } from "lucide-react"
+import { CpuIcon, HardDriveIcon, HourglassIcon, MemoryStickIcon, ServerIcon, ThermometerIcon, DropletsIcon, WindIcon, GaugeIcon, CloudIcon } from "lucide-react"
 import type { RecordSubscription } from "pocketbase"
 import { EthernetIcon } from "@/components/ui/icons"
 import { $alerts } from "@/lib/stores"
@@ -76,6 +76,77 @@ export const alertInfo: Record<string, AlertInfo> = {
 		start: 10,
 		step: 0.1,
 		desc: () => t`Triggers when 15 minute load average exceeds a threshold`,
+	},
+	// SNMP Sensor Alerts
+	SNMPTemperature: {
+		name: () => t`SNMP Temperature`,
+		unit: "°C",
+		icon: ThermometerIcon,
+		max: 100,
+		min: -50,
+		start: 30,
+		step: 1,
+		desc: () => t`Triggers when any SNMP temperature sensor exceeds a threshold`,
+	},
+	SNMPHumidity: {
+		name: () => t`SNMP Humidity`,
+		unit: "%",
+		icon: DropletsIcon,
+		max: 100,
+		min: 0,
+		start: 80,
+		step: 1,
+		desc: () => t`Triggers when any SNMP humidity sensor exceeds a threshold`,
+	},
+	SNMPCO2: {
+		name: () => t`SNMP CO2`,
+		unit: " ppm",
+		icon: WindIcon,
+		max: 5000,
+		min: 300,
+		start: 1000,
+		step: 50,
+		desc: () => t`Triggers when any SNMP CO2 sensor exceeds a threshold`,
+	},
+	SNMPPressure: {
+		name: () => t`SNMP Pressure`,
+		unit: " hPa",
+		icon: GaugeIcon,
+		max: 1100,
+		min: 800,
+		start: 1000,
+		step: 10,
+		desc: () => t`Triggers when any SNMP pressure sensor exceeds a threshold`,
+	},
+	SNMPPM25: {
+		name: () => t`SNMP PM2.5`,
+		unit: " µg/m³",
+		icon: CloudIcon,
+		max: 500,
+		min: 0,
+		start: 50,
+		step: 5,
+		desc: () => t`Triggers when any SNMP PM2.5 sensor exceeds a threshold`,
+	},
+	SNMPPM10: {
+		name: () => t`SNMP PM10`,
+		unit: " µg/m³",
+		icon: CloudIcon,
+		max: 500,
+		min: 0,
+		start: 50,
+		step: 5,
+		desc: () => t`Triggers when any SNMP PM10 sensor exceeds a threshold`,
+	},
+	SNMPVOC: {
+		name: () => t`SNMP VOC`,
+		unit: " ppb",
+		icon: WindIcon,
+		max: 1000,
+		min: 0,
+		start: 200,
+		step: 10,
+		desc: () => t`Triggers when any SNMP VOC sensor exceeds a threshold`,
 	},
 } as const
 

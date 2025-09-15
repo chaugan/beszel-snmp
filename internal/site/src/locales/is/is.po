@@ -143,6 +143,10 @@ msgstr "Ertu viss um að þú viljir eyða {name}?"
 msgid "Are you sure?"
 msgstr ""
 
+#: src/components/routes/system.tsx
+msgid "Atmospheric pressure"
+msgstr ""
+
 #: src/components/copy-to-clipboard.tsx
 msgid "Automatic copy requires a secure context."
 msgstr "Sjálfvisk afritun krefst öruggs samhengis."
@@ -266,6 +270,18 @@ msgstr ""
 #: src/components/ui/input-copy.tsx
 msgid "Click to copy"
 msgstr "Smelltu til að afrita"
+
+#: src/components/routes/system.tsx
+msgid "CO2"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "CO2 concentration"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "Coarse particulate matter concentration"
+msgstr ""
 
 #: src/components/login/forgot-pass-form.tsx
 #: src/components/login/forgot-pass-form.tsx
@@ -452,6 +468,7 @@ msgstr ""
 
 #: src/components/login/auth-form.tsx
 #: src/components/login/forgot-pass-form.tsx
+#: src/components/login/otp-forms.tsx
 msgid "Email"
 msgstr "Netfang"
 
@@ -471,6 +488,10 @@ msgstr "Settu netfang til að endursetja lykilorð"
 #: src/components/routes/settings/notifications.tsx
 msgid "Enter email address..."
 msgstr "Settu inn Netfang..."
+
+#: src/components/login/otp-forms.tsx
+msgid "Enter your one-time password."
+msgstr ""
 
 #: src/components/login/auth-form.tsx
 #: src/components/routes/settings/alerts-history-data-table.tsx
@@ -530,6 +551,10 @@ msgstr "Mistókst að uppfæra tilkynningu"
 msgid "Filter..."
 msgstr "Sía..."
 
+#: src/components/routes/system.tsx
+msgid "Fine particulate matter concentration"
+msgstr ""
+
 #: src/components/routes/settings/tokens-fingerprints.tsx
 msgid "Fingerprint"
 msgstr ""
@@ -541,6 +566,12 @@ msgstr ""
 #: src/components/login/auth-form.tsx
 msgid "Forgot password?"
 msgstr "Gleymt lykilorð?"
+
+#: src/components/add-system.tsx
+#: src/components/routes/settings/tokens-fingerprints.tsx
+msgctxt "Button to copy install command"
+msgid "FreeBSD command"
+msgstr ""
 
 #. Context: Battery state
 #: src/lib/i18n.ts
@@ -570,6 +601,10 @@ msgstr "Homebrew skipun"
 #: src/components/add-system.tsx
 msgid "Host / IP"
 msgstr "Host / IP"
+
+#: src/components/routes/system.tsx
+msgid "Humidity"
+msgstr ""
 
 #. Context: Battery state
 #: src/lib/i18n.ts
@@ -645,6 +680,7 @@ msgid "Manage display and notification preferences."
 msgstr ""
 
 #: src/components/add-system.tsx
+#: src/components/routes/settings/tokens-fingerprints.tsx
 msgid "Manual setup instructions"
 msgstr ""
 
@@ -713,6 +749,10 @@ msgstr "OAuth 2 / OIDC stuðningur"
 
 #: src/components/routes/settings/config-yaml.tsx
 msgid "On each restart, systems in the database will be updated to match the systems defined in the file."
+msgstr ""
+
+#: src/components/login/auth-form.tsx
+msgid "One-time password"
 msgstr ""
 
 #: src/components/routes/settings/tokens-fingerprints.tsx
@@ -805,6 +845,14 @@ msgstr "Vinsamlegast skoðaðu <0>skjölin</0> fyrir leiðbeiningar."
 msgid "Please sign in to your account"
 msgstr "Vinsamlegast skráðu þig inn á aðganginn þinn"
 
+#: src/components/routes/system.tsx
+msgid "PM10"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "PM2.5"
+msgstr ""
+
 #: src/components/add-system.tsx
 msgid "Port"
 msgstr "Port"
@@ -817,6 +865,10 @@ msgstr ""
 #: src/components/routes/settings/general.tsx
 msgid "Preferred Language"
 msgstr "Valið tungumál"
+
+#: src/components/routes/system.tsx
+msgid "Pressure"
+msgstr ""
 
 #. Use 'Key' if your language requires many more characters
 #: src/components/add-system.tsx
@@ -832,6 +884,18 @@ msgstr "Lesa"
 #: src/components/routes/system.tsx
 msgid "Received"
 msgstr "Móttekið"
+
+#: src/components/routes/system.tsx
+msgid "Relative humidity of sensors"
+msgstr ""
+
+#: src/components/login/login.tsx
+msgid "Request a one-time password"
+msgstr ""
+
+#: src/components/login/otp-forms.tsx
+msgid "Request OTP"
+msgstr ""
 
 #: src/components/login/forgot-pass-form.tsx
 msgid "Reset Password"
@@ -889,8 +953,8 @@ msgid "Set percentage thresholds for meter colors."
 msgstr "Stilltu prósentuþröskuld fyrir mælaliti."
 
 #: src/components/routes/settings/general.tsx
-msgid "Sets the default time range for charts when a system is viewed."
-msgstr ""
+#~ msgid "Sets the default time range for charts when a system is viewed."
+#~ msgstr ""
 
 #: src/components/command-palette.tsx
 #: src/components/command-palette.tsx
@@ -910,6 +974,38 @@ msgstr "Innskrá"
 #: src/components/command-palette.tsx
 msgid "SMTP settings"
 msgstr "SMTP stillingar"
+
+#: src/lib/alerts.ts
+msgid "SNMP CO2"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Humidity"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP PM10"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP PM2.5"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Pressure"
+msgstr ""
+
+#: src/components/systems-table/systems-table.tsx
+msgid "SNMP Sensors"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Temperature"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP VOC"
+msgstr ""
 
 #: src/components/systems-table/systems-table.tsx
 msgid "Sort By"
@@ -1002,6 +1098,10 @@ msgstr ""
 msgid "Throughput of root filesystem"
 msgstr ""
 
+#: src/components/routes/settings/general.tsx
+msgid "Time format"
+msgstr ""
+
 #: src/components/routes/settings/notifications.tsx
 msgid "To email(s)"
 msgstr "Til tölvupósta"
@@ -1049,6 +1149,34 @@ msgstr ""
 #: src/lib/alerts.ts
 msgid "Triggers when any sensor exceeds a threshold"
 msgstr "Virkjast þegar einhver skynjari fer yfir þröskuld"
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP CO2 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP humidity sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP PM10 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP PM2.5 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP pressure sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP temperature sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP VOC sensor exceeds a threshold"
+msgstr ""
 
 #: src/lib/alerts.ts
 msgid "Triggers when combined up/down exceeds a threshold"
@@ -1135,6 +1263,14 @@ msgstr ""
 #: src/components/systems-table/systems-table.tsx
 msgid "Visible Fields"
 msgstr "Sjáanlegir reitir"
+
+#: src/components/routes/system.tsx
+msgid "VOC"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "Volatile organic compounds"
+msgstr ""
 
 #: src/components/routes/system.tsx
 msgid "Waiting for enough records to display"

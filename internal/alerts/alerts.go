@@ -47,6 +47,13 @@ type SystemAlertStats struct {
 	NetRecv      float64            `json:"nr"`
 	Temperatures map[string]float32 `json:"t"`
 	LoadAvg      [3]float64         `json:"la"`
+	// SNMP sensor data
+	Humidity map[string]float32 `json:"h"`
+	CO2      map[string]float32 `json:"co2"`
+	Pressure map[string]float32 `json:"pr"`
+	PM25     map[string]float32 `json:"pm25"`
+	PM10     map[string]float32 `json:"pm10"`
+	VOC      map[string]float32 `json:"voc"`
 }
 
 type SystemAlertData struct {

@@ -75,6 +75,20 @@ export interface SystemInfo {
 	dt?: number
 	/** operating system */
 	os?: Os
+	/** agent type (e.g., "snmp") */
+	a?: string
+	/** dashboard display humidity (%) */
+	dh?: number
+	/** dashboard display CO2 (ppm) */
+	dco2?: number
+	/** dashboard display pressure (hPa) */
+	dpr?: number
+	/** dashboard display PM2.5 (µg/m3) */
+	dpm25?: number
+	/** dashboard display PM10 (µg/m3) */
+	dpm10?: number
+	/** dashboard display VOC (ppb) */
+	dvoc?: number
 }
 
 export interface SystemStats {
@@ -135,6 +149,18 @@ export interface SystemStats {
 	bm?: [number, number]
 	/** temperatures */
 	t?: Record<string, number>
+	/** humidity (percent) */
+	h?: Record<string, number>
+	/** CO2 (ppm) */
+	co2?: Record<string, number>
+	/** pressure (hPa or Pa, depending on sensor mapping) */
+	pr?: Record<string, number>
+	/** PM2.5 (µg/m3) */
+	pm25?: Record<string, number>
+	/** PM10 (µg/m3) */
+	pm10?: Record<string, number>
+	/** VOC (ppb) */
+	voc?: Record<string, number>
 	/** extra filesystems */
 	efs?: Record<string, ExtraFsStats>
 	/** GPU data */

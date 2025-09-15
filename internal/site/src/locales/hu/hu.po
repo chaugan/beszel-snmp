@@ -143,6 +143,10 @@ msgstr "Biztosan törölni szeretnéd {name}-t?"
 msgid "Are you sure?"
 msgstr ""
 
+#: src/components/routes/system.tsx
+msgid "Atmospheric pressure"
+msgstr ""
+
 #: src/components/copy-to-clipboard.tsx
 msgid "Automatic copy requires a secure context."
 msgstr "Az automatikus másolás biztonságos környezetet igényel."
@@ -266,6 +270,18 @@ msgstr ""
 #: src/components/ui/input-copy.tsx
 msgid "Click to copy"
 msgstr "Kattints a másoláshoz"
+
+#: src/components/routes/system.tsx
+msgid "CO2"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "CO2 concentration"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "Coarse particulate matter concentration"
+msgstr ""
 
 #: src/components/login/forgot-pass-form.tsx
 #: src/components/login/forgot-pass-form.tsx
@@ -452,6 +468,7 @@ msgstr ""
 
 #: src/components/login/auth-form.tsx
 #: src/components/login/forgot-pass-form.tsx
+#: src/components/login/otp-forms.tsx
 msgid "Email"
 msgstr "Email"
 
@@ -471,6 +488,10 @@ msgstr "E-mail cím megadása a jelszó visszaállításához"
 #: src/components/routes/settings/notifications.tsx
 msgid "Enter email address..."
 msgstr "Adja meg az e-mail címet..."
+
+#: src/components/login/otp-forms.tsx
+msgid "Enter your one-time password."
+msgstr ""
 
 #: src/components/login/auth-form.tsx
 #: src/components/routes/settings/alerts-history-data-table.tsx
@@ -530,6 +551,10 @@ msgstr "Nem sikerült frissíteni a riasztást"
 msgid "Filter..."
 msgstr "Szűrő..."
 
+#: src/components/routes/system.tsx
+msgid "Fine particulate matter concentration"
+msgstr ""
+
 #: src/components/routes/settings/tokens-fingerprints.tsx
 msgid "Fingerprint"
 msgstr ""
@@ -541,6 +566,12 @@ msgstr "A <0>{min}</0> {min, plural, one {perc} other {percek}}"
 #: src/components/login/auth-form.tsx
 msgid "Forgot password?"
 msgstr "Elfelejtette a jelszavát?"
+
+#: src/components/add-system.tsx
+#: src/components/routes/settings/tokens-fingerprints.tsx
+msgctxt "Button to copy install command"
+msgid "FreeBSD command"
+msgstr ""
 
 #. Context: Battery state
 #: src/lib/i18n.ts
@@ -570,6 +601,10 @@ msgstr "Homebrew parancs"
 #: src/components/add-system.tsx
 msgid "Host / IP"
 msgstr "Állomás / IP"
+
+#: src/components/routes/system.tsx
+msgid "Humidity"
+msgstr ""
 
 #. Context: Battery state
 #: src/lib/i18n.ts
@@ -645,6 +680,7 @@ msgid "Manage display and notification preferences."
 msgstr "A megjelenítési és értesítési beállítások kezelése."
 
 #: src/components/add-system.tsx
+#: src/components/routes/settings/tokens-fingerprints.tsx
 msgid "Manual setup instructions"
 msgstr ""
 
@@ -714,6 +750,10 @@ msgstr "OAuth 2 / OIDC támogatás"
 #: src/components/routes/settings/config-yaml.tsx
 msgid "On each restart, systems in the database will be updated to match the systems defined in the file."
 msgstr "Minden újraindításkor az adatbázisban lévő rendszerek frissítésre kerülnek, hogy megfeleljenek a fájlban meghatározott rendszereknek."
+
+#: src/components/login/auth-form.tsx
+msgid "One-time password"
+msgstr ""
 
 #: src/components/routes/settings/tokens-fingerprints.tsx
 #: src/components/routes/settings/tokens-fingerprints.tsx
@@ -805,6 +845,14 @@ msgstr "Kérjük, nézze meg <0>a dokumentációt</0> az utasításokért."
 msgid "Please sign in to your account"
 msgstr "Kérjük, jelentkezzen be a fiókjába"
 
+#: src/components/routes/system.tsx
+msgid "PM10"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "PM2.5"
+msgstr ""
+
 #: src/components/add-system.tsx
 msgid "Port"
 msgstr "Port"
@@ -817,6 +865,10 @@ msgstr "Pontos kihasználás a rögzített időpontban"
 #: src/components/routes/settings/general.tsx
 msgid "Preferred Language"
 msgstr "Preferált nyelv"
+
+#: src/components/routes/system.tsx
+msgid "Pressure"
+msgstr ""
 
 #. Use 'Key' if your language requires many more characters
 #: src/components/add-system.tsx
@@ -832,6 +884,18 @@ msgstr "Olvasás"
 #: src/components/routes/system.tsx
 msgid "Received"
 msgstr "Fogadott"
+
+#: src/components/routes/system.tsx
+msgid "Relative humidity of sensors"
+msgstr ""
+
+#: src/components/login/login.tsx
+msgid "Request a one-time password"
+msgstr ""
+
+#: src/components/login/otp-forms.tsx
+msgid "Request OTP"
+msgstr ""
 
 #: src/components/login/forgot-pass-form.tsx
 msgid "Reset Password"
@@ -889,8 +953,8 @@ msgid "Set percentage thresholds for meter colors."
 msgstr "Százalékos küszöbértékek beállítása a mérőszínekhez."
 
 #: src/components/routes/settings/general.tsx
-msgid "Sets the default time range for charts when a system is viewed."
-msgstr "Beállítja az alapértelmezett időtartamot a diagramokhoz, amikor egy rendszert néznek."
+#~ msgid "Sets the default time range for charts when a system is viewed."
+#~ msgstr "Beállítja az alapértelmezett időtartamot a diagramokhoz, amikor egy rendszert néznek."
 
 #: src/components/command-palette.tsx
 #: src/components/command-palette.tsx
@@ -910,6 +974,38 @@ msgstr "Bejelentkezés"
 #: src/components/command-palette.tsx
 msgid "SMTP settings"
 msgstr "SMTP beállítások"
+
+#: src/lib/alerts.ts
+msgid "SNMP CO2"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Humidity"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP PM10"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP PM2.5"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Pressure"
+msgstr ""
+
+#: src/components/systems-table/systems-table.tsx
+msgid "SNMP Sensors"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Temperature"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP VOC"
+msgstr ""
 
 #: src/components/systems-table/systems-table.tsx
 msgid "Sort By"
@@ -1002,6 +1098,10 @@ msgstr "A {extraFsName} átviteli teljesítménye"
 msgid "Throughput of root filesystem"
 msgstr "A gyökér fájlrendszer átviteli teljesítménye"
 
+#: src/components/routes/settings/general.tsx
+msgid "Time format"
+msgstr ""
+
 #: src/components/routes/settings/notifications.tsx
 msgid "To email(s)"
 msgstr "E-mailben"
@@ -1049,6 +1149,34 @@ msgstr ""
 #: src/lib/alerts.ts
 msgid "Triggers when any sensor exceeds a threshold"
 msgstr "Bekapcsol, ha bármelyik érzékelő túllép egy küszöbértéket"
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP CO2 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP humidity sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP PM10 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP PM2.5 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP pressure sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP temperature sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP VOC sensor exceeds a threshold"
+msgstr ""
 
 #: src/lib/alerts.ts
 msgid "Triggers when combined up/down exceeds a threshold"
@@ -1135,6 +1263,14 @@ msgstr ""
 #: src/components/systems-table/systems-table.tsx
 msgid "Visible Fields"
 msgstr "Látható mezők"
+
+#: src/components/routes/system.tsx
+msgid "VOC"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "Volatile organic compounds"
+msgstr ""
 
 #: src/components/routes/system.tsx
 msgid "Waiting for enough records to display"

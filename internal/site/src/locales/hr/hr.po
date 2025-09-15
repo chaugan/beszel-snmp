@@ -143,6 +143,10 @@ msgstr "Jeste li sigurni da želite izbrisati {name}?"
 msgid "Are you sure?"
 msgstr ""
 
+#: src/components/routes/system.tsx
+msgid "Atmospheric pressure"
+msgstr ""
+
 #: src/components/copy-to-clipboard.tsx
 msgid "Automatic copy requires a secure context."
 msgstr "Automatsko kopiranje zahtijeva siguran kontekst."
@@ -266,6 +270,18 @@ msgstr ""
 #: src/components/ui/input-copy.tsx
 msgid "Click to copy"
 msgstr "Pritisnite za kopiranje"
+
+#: src/components/routes/system.tsx
+msgid "CO2"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "CO2 concentration"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "Coarse particulate matter concentration"
+msgstr ""
 
 #: src/components/login/forgot-pass-form.tsx
 #: src/components/login/forgot-pass-form.tsx
@@ -452,6 +468,7 @@ msgstr ""
 
 #: src/components/login/auth-form.tsx
 #: src/components/login/forgot-pass-form.tsx
+#: src/components/login/otp-forms.tsx
 msgid "Email"
 msgstr "Email"
 
@@ -471,6 +488,10 @@ msgstr "Unesite email adresu za resetiranje lozinke"
 #: src/components/routes/settings/notifications.tsx
 msgid "Enter email address..."
 msgstr "Unesite email adresu..."
+
+#: src/components/login/otp-forms.tsx
+msgid "Enter your one-time password."
+msgstr ""
 
 #: src/components/login/auth-form.tsx
 #: src/components/routes/settings/alerts-history-data-table.tsx
@@ -530,6 +551,10 @@ msgstr "Ažuriranje upozorenja nije uspjelo"
 msgid "Filter..."
 msgstr "Filter..."
 
+#: src/components/routes/system.tsx
+msgid "Fine particulate matter concentration"
+msgstr ""
+
 #: src/components/routes/settings/tokens-fingerprints.tsx
 msgid "Fingerprint"
 msgstr ""
@@ -541,6 +566,12 @@ msgstr "Za <0>{min}</0> {min, plural, one {minutu} other {minute}}"
 #: src/components/login/auth-form.tsx
 msgid "Forgot password?"
 msgstr "Zaboravljena lozinka?"
+
+#: src/components/add-system.tsx
+#: src/components/routes/settings/tokens-fingerprints.tsx
+msgctxt "Button to copy install command"
+msgid "FreeBSD command"
+msgstr ""
 
 #. Context: Battery state
 #: src/lib/i18n.ts
@@ -570,6 +601,10 @@ msgstr "Homebrew naredba"
 #: src/components/add-system.tsx
 msgid "Host / IP"
 msgstr "Host / IP"
+
+#: src/components/routes/system.tsx
+msgid "Humidity"
+msgstr ""
 
 #. Context: Battery state
 #: src/lib/i18n.ts
@@ -645,6 +680,7 @@ msgid "Manage display and notification preferences."
 msgstr "Upravljajte postavkama prikaza i obavijesti."
 
 #: src/components/add-system.tsx
+#: src/components/routes/settings/tokens-fingerprints.tsx
 msgid "Manual setup instructions"
 msgstr ""
 
@@ -714,6 +750,10 @@ msgstr "Podrška za OAuth 2 / OIDC"
 #: src/components/routes/settings/config-yaml.tsx
 msgid "On each restart, systems in the database will be updated to match the systems defined in the file."
 msgstr "Prilikom svakog ponovnog pokretanja, sustavi u bazi podataka biti će ažurirani kako bi odgovarali sustavima definiranim u datoteci."
+
+#: src/components/login/auth-form.tsx
+msgid "One-time password"
+msgstr ""
 
 #: src/components/routes/settings/tokens-fingerprints.tsx
 #: src/components/routes/settings/tokens-fingerprints.tsx
@@ -805,6 +845,14 @@ msgstr "Molimo pogledajte <0>dokumentaciju</0> za instrukcije."
 msgid "Please sign in to your account"
 msgstr "Molimo prijavite se u svoj račun"
 
+#: src/components/routes/system.tsx
+msgid "PM10"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "PM2.5"
+msgstr ""
+
 #: src/components/add-system.tsx
 msgid "Port"
 msgstr "Port"
@@ -817,6 +865,10 @@ msgstr "Precizno iskorištenje u zabilježenom vremenu"
 #: src/components/routes/settings/general.tsx
 msgid "Preferred Language"
 msgstr "Preferirani jezik"
+
+#: src/components/routes/system.tsx
+msgid "Pressure"
+msgstr ""
 
 #. Use 'Key' if your language requires many more characters
 #: src/components/add-system.tsx
@@ -832,6 +884,18 @@ msgstr "Pročitaj"
 #: src/components/routes/system.tsx
 msgid "Received"
 msgstr "Primljeno"
+
+#: src/components/routes/system.tsx
+msgid "Relative humidity of sensors"
+msgstr ""
+
+#: src/components/login/login.tsx
+msgid "Request a one-time password"
+msgstr ""
+
+#: src/components/login/otp-forms.tsx
+msgid "Request OTP"
+msgstr ""
 
 #: src/components/login/forgot-pass-form.tsx
 msgid "Reset Password"
@@ -889,8 +953,8 @@ msgid "Set percentage thresholds for meter colors."
 msgstr "Postavite pragove postotka za boje mjerača."
 
 #: src/components/routes/settings/general.tsx
-msgid "Sets the default time range for charts when a system is viewed."
-msgstr "Postavlja zadani vremenski raspon za grafikone kada se sustav gleda."
+#~ msgid "Sets the default time range for charts when a system is viewed."
+#~ msgstr "Postavlja zadani vremenski raspon za grafikone kada se sustav gleda."
 
 #: src/components/command-palette.tsx
 #: src/components/command-palette.tsx
@@ -910,6 +974,38 @@ msgstr "Prijava"
 #: src/components/command-palette.tsx
 msgid "SMTP settings"
 msgstr "SMTP postavke"
+
+#: src/lib/alerts.ts
+msgid "SNMP CO2"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Humidity"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP PM10"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP PM2.5"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Pressure"
+msgstr ""
+
+#: src/components/systems-table/systems-table.tsx
+msgid "SNMP Sensors"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP Temperature"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "SNMP VOC"
+msgstr ""
 
 #: src/components/systems-table/systems-table.tsx
 msgid "Sort By"
@@ -1002,6 +1098,10 @@ msgstr "Protok {extraFsName}"
 msgid "Throughput of root filesystem"
 msgstr "Protok root datotečnog sustava"
 
+#: src/components/routes/settings/general.tsx
+msgid "Time format"
+msgstr ""
+
 #: src/components/routes/settings/notifications.tsx
 msgid "To email(s)"
 msgstr "Primaoci e-pošte"
@@ -1049,6 +1149,34 @@ msgstr ""
 #: src/lib/alerts.ts
 msgid "Triggers when any sensor exceeds a threshold"
 msgstr "Pokreće se kada bilo koji senzor prijeđe prag"
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP CO2 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP humidity sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP PM10 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP PM2.5 sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP pressure sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP temperature sensor exceeds a threshold"
+msgstr ""
+
+#: src/lib/alerts.ts
+msgid "Triggers when any SNMP VOC sensor exceeds a threshold"
+msgstr ""
 
 #: src/lib/alerts.ts
 msgid "Triggers when combined up/down exceeds a threshold"
@@ -1135,6 +1263,14 @@ msgstr ""
 #: src/components/systems-table/systems-table.tsx
 msgid "Visible Fields"
 msgstr "Vidljiva polja"
+
+#: src/components/routes/system.tsx
+msgid "VOC"
+msgstr ""
+
+#: src/components/routes/system.tsx
+msgid "Volatile organic compounds"
+msgstr ""
 
 #: src/components/routes/system.tsx
 msgid "Waiting for enough records to display"

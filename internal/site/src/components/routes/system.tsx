@@ -15,6 +15,12 @@ import LoadAverageChart from "@/components/charts/load-average-chart"
 import MemChart from "@/components/charts/mem-chart"
 import SwapChart from "@/components/charts/swap-chart"
 import TemperatureChart from "@/components/charts/temperature-chart"
+import HumidityChart from "@/components/charts/humidity-chart"
+import CO2Chart from "@/components/charts/co2-chart"
+import PressureChart from "@/components/charts/pressure-chart"
+import PM25Chart from "@/components/charts/pm25-chart"
+import PM10Chart from "@/components/charts/pm10-chart"
+import VOCChart from "@/components/charts/voc-chart"
 import { getPbTimestamp, pb } from "@/lib/api"
 import { ChartType, Os, SystemStatus, Unit } from "@/lib/enums"
 import { batteryStateTranslations } from "@/lib/i18n"
@@ -380,6 +386,9 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 		return null
 	}
 
+	// treat SNMP agents differently in UI
+	const isSnmpAgent = (system.info?.a ?? "").toLowerCase() === "snmp"
+
 	// select field for switching between avg and max values
 	const maxValSelect = isLongerChart ? <SelectAvgMax max={maxValues} /> : null
 	const showMax = chartTime !== "1h" && maxValues
@@ -480,30 +489,30 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 
 				{/* main charts */}
 				<div className="grid xl:grid-cols-2 gap-4">
-					<ChartCard
-						empty={dataEmpty}
-						grid={grid}
-						title={t`CPU Usage`}
-						description={t`Average system-wide CPU utilization`}
-						cornerEl={maxValSelect}
-					>
-						<AreaChartDefault
-							chartData={chartData}
-							maxToggled={maxValues}
-							dataPoints={[
-								{
+					{!isSnmpAgent && (
+						<ChartCard
+							empty={dataEmpty}
+							grid={grid}
+							title={t`CPU Usage`}
+							description={t`Average system-wide CPU utilization`}
+							cornerEl={maxValSelect}
+						>
+							<AreaChartDefault
+								chartData={chartData}
+								maxToggled={maxValues}
+								dataPoints={[{
 									label: t`CPU Usage`,
 									dataKey: ({ stats }) => (showMax ? stats?.cpum : stats?.cpu),
 									color: 1,
 									opacity: 0.4,
-								},
-							]}
-							tickFormatter={(val) => `${toFixedFloat(val, 2)}%`}
-							contentFormatter={({ value }) => `${decimalString(value)}%`}
-						/>
-					</ChartCard>
+								},]}
+								tickFormatter={(val) => `${toFixedFloat(val, 2)}%`}
+								contentFormatter={({ value }) => `${decimalString(value)}%`}
+							/>
+						</ChartCard>
+					)}
 
-					{containerFilterBar && (
+					{!isSnmpAgent && containerFilterBar && (
 						<ChartCard
 							empty={dataEmpty}
 							grid={grid}
@@ -520,17 +529,19 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 						</ChartCard>
 					)}
 
-					<ChartCard
-						empty={dataEmpty}
-						grid={grid}
-						title={t`Memory Usage`}
-						description={t`Precise utilization at the recorded time`}
-						cornerEl={maxValSelect}
-					>
-						<MemChart chartData={chartData} showMax={showMax} />
-					</ChartCard>
+					{!isSnmpAgent && (
+						<ChartCard
+							empty={dataEmpty}
+							grid={grid}
+							title={t`Memory Usage`}
+							description={t`Precise utilization at the recorded time`}
+							cornerEl={maxValSelect}
+						>
+							<MemChart chartData={chartData} showMax={showMax} />
+						</ChartCard>
+					)}
 
-					{containerFilterBar && (
+					{!isSnmpAgent && containerFilterBar && (
 						<ChartCard
 							empty={dataEmpty}
 							grid={grid}
@@ -547,92 +558,98 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 						</ChartCard>
 					)}
 
-					<ChartCard empty={dataEmpty} grid={grid} title={t`Disk Usage`} description={t`Usage of root partition`}>
-						<DiskChart chartData={chartData} dataKey="stats.du" diskSize={systemStats.at(-1)?.stats.d ?? NaN} />
-					</ChartCard>
+					{!isSnmpAgent && (
+						<ChartCard empty={dataEmpty} grid={grid} title={t`Disk Usage`} description={t`Usage of root partition`}>
+							<DiskChart chartData={chartData} dataKey="stats.du" diskSize={systemStats.at(-1)?.stats.d ?? NaN} />
+						</ChartCard>
+					)}
 
-					<ChartCard
-						empty={dataEmpty}
-						grid={grid}
-						title={t`Disk I/O`}
-						description={t`Throughput of root filesystem`}
-						cornerEl={maxValSelect}
-					>
-						<AreaChartDefault
-							chartData={chartData}
-							maxToggled={maxValues}
-							dataPoints={[
-								{
-									label: t({ message: "Write", comment: "Disk write" }),
-									dataKey: ({ stats }) => (showMax ? stats?.dwm : stats?.dw),
-									color: 3,
-									opacity: 0.3,
-								},
-								{
-									label: t({ message: "Read", comment: "Disk read" }),
-									dataKey: ({ stats }) => (showMax ? stats?.drm : stats?.dr),
-									color: 1,
-									opacity: 0.3,
-								},
-							]}
-							tickFormatter={(val) => {
-								const { value, unit } = formatBytes(val, true, userSettings.unitDisk, true)
-								return `${toFixedFloat(value, value >= 10 ? 0 : 1)} ${unit}`
-							}}
-							contentFormatter={({ value }) => {
-								const { value: convertedValue, unit } = formatBytes(value, true, userSettings.unitDisk, true)
-								return `${decimalString(convertedValue, convertedValue >= 100 ? 1 : 2)} ${unit}`
-							}}
-						/>
-					</ChartCard>
-
-					<ChartCard
-						empty={dataEmpty}
-						grid={grid}
-						title={t`Bandwidth`}
-						cornerEl={maxValSelect}
-						description={t`Network traffic of public interfaces`}
-					>
-						<AreaChartDefault
-							chartData={chartData}
-							maxToggled={maxValues}
-							dataPoints={[
-								{
-									label: t`Sent`,
-									// use bytes if available, otherwise multiply old MB (can remove in future)
-									dataKey(data) {
-										if (showMax) {
-											return data?.stats?.bm?.[0] ?? (data?.stats?.nsm ?? 0) * 1024 * 1024
-										}
-										return data?.stats?.b?.[0] ?? data?.stats?.ns * 1024 * 1024
+					{!isSnmpAgent && (
+						<ChartCard
+							empty={dataEmpty}
+							grid={grid}
+							title={t`Disk I/O`}
+							description={t`Throughput of root filesystem`}
+							cornerEl={maxValSelect}
+						>
+							<AreaChartDefault
+								chartData={chartData}
+								maxToggled={maxValues}
+								dataPoints={[
+									{
+										label: t({ message: "Write", comment: "Disk write" }),
+										dataKey: ({ stats }) => (showMax ? stats?.dwm : stats?.dw),
+										color: 3,
+										opacity: 0.3,
 									},
-									color: 5,
-									opacity: 0.2,
-								},
-								{
-									label: t`Received`,
-									dataKey(data) {
-										if (showMax) {
-											return data?.stats?.bm?.[1] ?? (data?.stats?.nrm ?? 0) * 1024 * 1024
-										}
-										return data?.stats?.b?.[1] ?? data?.stats?.nr * 1024 * 1024
+									{
+										label: t({ message: "Read", comment: "Disk read" }),
+										dataKey: ({ stats }) => (showMax ? stats?.drm : stats?.dr),
+										color: 1,
+										opacity: 0.3,
 									},
-									color: 2,
-									opacity: 0.2,
-								},
-							]}
-							tickFormatter={(val) => {
-								const { value, unit } = formatBytes(val, true, userSettings.unitNet, false)
-								return `${toFixedFloat(value, value >= 10 ? 0 : 1)} ${unit}`
-							}}
-							contentFormatter={(data) => {
-								const { value, unit } = formatBytes(data.value, true, userSettings.unitNet, false)
-								return `${decimalString(value, value >= 100 ? 1 : 2)} ${unit}`
-							}}
-						/>
-					</ChartCard>
+								]}
+								tickFormatter={(val) => {
+									const { value, unit } = formatBytes(val, true, userSettings.unitDisk, true)
+									return `${toFixedFloat(value, value >= 10 ? 0 : 1)} ${unit}`
+								}}
+								contentFormatter={({ value }) => {
+									const { value: convertedValue, unit } = formatBytes(value, true, userSettings.unitDisk, true)
+									return `${decimalString(convertedValue, convertedValue >= 100 ? 1 : 2)} ${unit}`
+								}}
+							/>
+						</ChartCard>
+					)}
 
-					{containerFilterBar && containerData.length > 0 && (
+					{!isSnmpAgent && (
+						<ChartCard
+							empty={dataEmpty}
+							grid={grid}
+							title={t`Bandwidth`}
+							cornerEl={maxValSelect}
+							description={t`Network traffic of public interfaces`}
+						>
+							<AreaChartDefault
+								chartData={chartData}
+								maxToggled={maxValues}
+								dataPoints={[
+									{
+										label: t`Sent`,
+										// use bytes if available, otherwise multiply old MB (can remove in future)
+										dataKey(data) {
+											if (showMax) {
+												return data?.stats?.bm?.[0] ?? (data?.stats?.nsm ?? 0) * 1024 * 1024
+											}
+											return data?.stats?.b?.[0] ?? data?.stats?.ns * 1024 * 1024
+										},
+										color: 5,
+										opacity: 0.2,
+									},
+									{
+										label: t`Received`,
+										dataKey(data) {
+											if (showMax) {
+												return data?.stats?.bm?.[1] ?? (data?.stats?.nrm ?? 0) * 1024 * 1024
+											}
+											return data?.stats?.b?.[1] ?? data?.stats?.nr * 1024 * 1024
+										},
+										color: 2,
+										opacity: 0.2,
+									},
+								]}
+								tickFormatter={(val) => {
+									const { value, unit } = formatBytes(val, true, userSettings.unitNet, false)
+									return `${toFixedFloat(value, value >= 10 ? 0 : 1)} ${unit}`
+								}}
+								contentFormatter={(data) => {
+									const { value, unit } = formatBytes(data.value, true, userSettings.unitNet, false)
+									return `${decimalString(value, value >= 100 ? 1 : 2)} ${unit}`
+								}}
+							/>
+						</ChartCard>
+					)}
+
+					{!isSnmpAgent && containerFilterBar && containerData.length > 0 && (
 						<div
 							ref={netCardRef}
 							className={cn({
@@ -656,7 +673,7 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 					)}
 
 					{/* Swap chart */}
-					{(systemStats.at(-1)?.stats.su ?? 0) > 0 && (
+					{!isSnmpAgent && (systemStats.at(-1)?.stats.su ?? 0) > 0 && (
 						<ChartCard
 							empty={dataEmpty}
 							grid={grid}
@@ -668,7 +685,7 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 					)}
 
 					{/* Load Average chart */}
-					{chartData.agentVersion?.minor >= 12 && (
+					{!isSnmpAgent && chartData.agentVersion?.minor >= 12 && (
 						<ChartCard
 							empty={dataEmpty}
 							grid={grid}
@@ -692,6 +709,48 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 						</ChartCard>
 					)}
 
+					{/* Humidity chart */}
+					{systemStats.at(-1)?.stats.h && (
+						<ChartCard empty={dataEmpty} grid={grid} title={t`Humidity`} description={t`Relative humidity of sensors`}>
+							<HumidityChart chartData={chartData} />
+						</ChartCard>
+					)}
+
+					{/* CO2 chart */}
+					{(systemStats.at(-1)?.stats as any)?.co2 && (
+						<ChartCard empty={dataEmpty} grid={grid} title={t`CO2`} description={t`CO2 concentration`}>
+							<CO2Chart chartData={chartData} />
+						</ChartCard>
+					)}
+
+					{/* Pressure chart */}
+					{(systemStats.at(-1)?.stats as any)?.pr && (
+						<ChartCard empty={dataEmpty} grid={grid} title={t`Pressure`} description={t`Atmospheric pressure`}>
+							<PressureChart chartData={chartData} />
+						</ChartCard>
+					)}
+
+					{/* PM2.5 chart */}
+					{(systemStats.at(-1)?.stats as any)?.pm25 && (
+						<ChartCard empty={dataEmpty} grid={grid} title={t`PM2.5`} description={t`Fine particulate matter concentration`}>
+							<PM25Chart chartData={chartData} />
+						</ChartCard>
+					)}
+
+					{/* PM10 chart */}
+					{(systemStats.at(-1)?.stats as any)?.pm10 && (
+						<ChartCard empty={dataEmpty} grid={grid} title={t`PM10`} description={t`Coarse particulate matter concentration`}>
+							<PM10Chart chartData={chartData} />
+						</ChartCard>
+					)}
+
+					{/* VOC chart */}
+					{(systemStats.at(-1)?.stats as any)?.voc && (
+						<ChartCard empty={dataEmpty} grid={grid} title={t`VOC`} description={t`Volatile organic compounds`}>
+							<VOCChart chartData={chartData} />
+						</ChartCard>
+					)}
+
 					{/* Battery chart */}
 					{systemStats.at(-1)?.stats.bat && (
 						<ChartCard
@@ -706,14 +765,12 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 							<AreaChartDefault
 								chartData={chartData}
 								maxToggled={maxValues}
-								dataPoints={[
-									{
-										label: t`Charge`,
-										dataKey: ({ stats }) => stats?.bat?.[0],
-										color: 1,
-										opacity: 0.35,
-									},
-								]}
+								dataPoints={[{
+									label: t`Charge`,
+									dataKey: ({ stats }) => stats?.bat?.[0],
+									color: 1,
+									opacity: 0.35,
+								},]}
 								domain={[0, 100]}
 								tickFormatter={(val) => `${val}%`}
 								contentFormatter={({ value }) => `${value}%`}
@@ -722,7 +779,7 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 					)}
 
 					{/* GPU power draw chart */}
-					{hasGpuPowerData && (
+					{!isSnmpAgent && hasGpuPowerData && (
 						<ChartCard
 							empty={dataEmpty}
 							grid={grid}
@@ -735,7 +792,7 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 				</div>
 
 				{/* GPU charts */}
-				{hasGpuData && (
+				{!isSnmpAgent && hasGpuData && (
 					<div className="grid xl:grid-cols-2 gap-4">
 						{Object.keys(systemStats.at(-1)?.stats.g ?? {}).map((id) => {
 							const gpu = systemStats.at(-1)?.stats.g?.[id] as GPUData
@@ -749,14 +806,12 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 									>
 										<AreaChartDefault
 											chartData={chartData}
-											dataPoints={[
-												{
-													label: t`Usage`,
-													dataKey: ({ stats }) => stats?.g?.[id]?.u ?? 0,
-													color: 1,
-													opacity: 0.35,
-												},
-											]}
+											dataPoints={[{
+												label: t`Usage`,
+												dataKey: ({ stats }) => stats?.g?.[id]?.u ?? 0,
+												color: 1,
+												opacity: 0.35,
+											},]}
 											tickFormatter={(val) => `${toFixedFloat(val, 2)}%`}
 											contentFormatter={({ value }) => `${decimalString(value)}%`}
 										/>
@@ -769,14 +824,12 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 									>
 										<AreaChartDefault
 											chartData={chartData}
-											dataPoints={[
-												{
-													label: t`Usage`,
-													dataKey: ({ stats }) => stats?.g?.[id]?.mu ?? 0,
-													color: 2,
-													opacity: 0.25,
-												},
-											]}
+											dataPoints={[{
+												label: t`Usage`,
+												dataKey: ({ stats }) => stats?.g?.[id]?.mu ?? 0,
+												color: 2,
+												opacity: 0.25,
+											},]}
 											max={gpu.mt}
 											tickFormatter={(val) => {
 												const { value, unit } = formatBytes(val, false, Unit.Bytes, true)
@@ -795,7 +848,7 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 				)}
 
 				{/* extra filesystem charts */}
-				{Object.keys(systemStats.at(-1)?.stats.efs ?? {}).length > 0 && (
+				{!isSnmpAgent && Object.keys(systemStats.at(-1)?.stats.efs ?? {}).length > 0 && (
 					<div className="grid xl:grid-cols-2 gap-4">
 						{Object.keys(systemStats.at(-1)?.stats.efs ?? {}).map((extraFsName) => {
 							return (

@@ -64,6 +64,49 @@ func (am *AlertManager) HandleSystemAlerts(systemRecord *core.Record, data *syst
 		case "LoadAvg15":
 			val = data.Info.LoadAvg[2]
 			unit = ""
+		// SNMP Sensor Alerts
+		case "SNMPTemperature":
+			if data.Info.DashboardTemp < 1 {
+				continue
+			}
+			val = data.Info.DashboardTemp
+			unit = "°C"
+		case "SNMPHumidity":
+			if data.Info.DashboardHumidity < 1 {
+				continue
+			}
+			val = data.Info.DashboardHumidity
+			unit = "%"
+		case "SNMPCO2":
+			if data.Info.DashboardCO2 < 1 {
+				continue
+			}
+			val = data.Info.DashboardCO2
+			unit = " ppm"
+		case "SNMPPressure":
+			if data.Info.DashboardPressure < 1 {
+				continue
+			}
+			val = data.Info.DashboardPressure
+			unit = " hPa"
+		case "SNMPPM25":
+			if data.Info.DashboardPM25 < 1 {
+				continue
+			}
+			val = data.Info.DashboardPM25
+			unit = " µg/m³"
+		case "SNMPPM10":
+			if data.Info.DashboardPM10 < 1 {
+				continue
+			}
+			val = data.Info.DashboardPM10
+			unit = " µg/m³"
+		case "SNMPVOC":
+			if data.Info.DashboardVOC < 1 {
+				continue
+			}
+			val = data.Info.DashboardVOC
+			unit = " ppb"
 		}
 
 		triggered := alertRecord.GetBool("triggered")
@@ -206,6 +249,77 @@ func (am *AlertManager) HandleSystemAlerts(systemRecord *core.Record, data *syst
 				alert.val += stats.LoadAvg[1]
 			case "LoadAvg15":
 				alert.val += stats.LoadAvg[2]
+			// SNMP Sensor Alerts
+			case "SNMPTemperature":
+				if alert.mapSums == nil {
+					alert.mapSums = make(map[string]float32, len(stats.Temperatures))
+				}
+				for key, temp := range stats.Temperatures {
+					if _, ok := alert.mapSums[key]; !ok {
+						alert.mapSums[key] = float32(0)
+					}
+					alert.mapSums[key] += temp
+				}
+			case "SNMPHumidity":
+				if alert.mapSums == nil {
+					alert.mapSums = make(map[string]float32, len(stats.Humidity))
+				}
+				for key, hum := range stats.Humidity {
+					if _, ok := alert.mapSums[key]; !ok {
+						alert.mapSums[key] = float32(0)
+					}
+					alert.mapSums[key] += hum
+				}
+			case "SNMPCO2":
+				if alert.mapSums == nil {
+					alert.mapSums = make(map[string]float32, len(stats.CO2))
+				}
+				for key, co2 := range stats.CO2 {
+					if _, ok := alert.mapSums[key]; !ok {
+						alert.mapSums[key] = float32(0)
+					}
+					alert.mapSums[key] += co2
+				}
+			case "SNMPPressure":
+				if alert.mapSums == nil {
+					alert.mapSums = make(map[string]float32, len(stats.Pressure))
+				}
+				for key, pr := range stats.Pressure {
+					if _, ok := alert.mapSums[key]; !ok {
+						alert.mapSums[key] = float32(0)
+					}
+					alert.mapSums[key] += pr
+				}
+			case "SNMPPM25":
+				if alert.mapSums == nil {
+					alert.mapSums = make(map[string]float32, len(stats.PM25))
+				}
+				for key, pm25 := range stats.PM25 {
+					if _, ok := alert.mapSums[key]; !ok {
+						alert.mapSums[key] = float32(0)
+					}
+					alert.mapSums[key] += pm25
+				}
+			case "SNMPPM10":
+				if alert.mapSums == nil {
+					alert.mapSums = make(map[string]float32, len(stats.PM10))
+				}
+				for key, pm10 := range stats.PM10 {
+					if _, ok := alert.mapSums[key]; !ok {
+						alert.mapSums[key] = float32(0)
+					}
+					alert.mapSums[key] += pm10
+				}
+			case "SNMPVOC":
+				if alert.mapSums == nil {
+					alert.mapSums = make(map[string]float32, len(stats.VOC))
+				}
+				for key, voc := range stats.VOC {
+					if _, ok := alert.mapSums[key]; !ok {
+						alert.mapSums[key] = float32(0)
+					}
+					alert.mapSums[key] += voc
+				}
 			default:
 				continue
 			}
@@ -225,7 +339,7 @@ func (am *AlertManager) HandleSystemAlerts(systemRecord *core.Record, data *syst
 				}
 			}
 			alert.val = float64(maxPct / float32(alert.count))
-		case "Temperature":
+		case "Temperature", "SNMPTemperature":
 			maxTemp := float32(0)
 			for key, value := range alert.mapSums {
 				sumTemp := float32(value) / float32(alert.count)
@@ -235,6 +349,66 @@ func (am *AlertManager) HandleSystemAlerts(systemRecord *core.Record, data *syst
 				}
 			}
 			alert.val = float64(maxTemp)
+		case "SNMPHumidity":
+			maxHum := float32(0)
+			for key, value := range alert.mapSums {
+				sumHum := float32(value) / float32(alert.count)
+				if sumHum > maxHum {
+					maxHum = sumHum
+					alert.descriptor = fmt.Sprintf("Highest sensor %s", key)
+				}
+			}
+			alert.val = float64(maxHum)
+		case "SNMPCO2":
+			maxCO2 := float32(0)
+			for key, value := range alert.mapSums {
+				sumCO2 := float32(value) / float32(alert.count)
+				if sumCO2 > maxCO2 {
+					maxCO2 = sumCO2
+					alert.descriptor = fmt.Sprintf("Highest sensor %s", key)
+				}
+			}
+			alert.val = float64(maxCO2)
+		case "SNMPPressure":
+			maxPr := float32(0)
+			for key, value := range alert.mapSums {
+				sumPr := float32(value) / float32(alert.count)
+				if sumPr > maxPr {
+					maxPr = sumPr
+					alert.descriptor = fmt.Sprintf("Highest sensor %s", key)
+				}
+			}
+			alert.val = float64(maxPr)
+		case "SNMPPM25":
+			maxPM25 := float32(0)
+			for key, value := range alert.mapSums {
+				sumPM25 := float32(value) / float32(alert.count)
+				if sumPM25 > maxPM25 {
+					maxPM25 = sumPM25
+					alert.descriptor = fmt.Sprintf("Highest sensor %s", key)
+				}
+			}
+			alert.val = float64(maxPM25)
+		case "SNMPPM10":
+			maxPM10 := float32(0)
+			for key, value := range alert.mapSums {
+				sumPM10 := float32(value) / float32(alert.count)
+				if sumPM10 > maxPM10 {
+					maxPM10 = sumPM10
+					alert.descriptor = fmt.Sprintf("Highest sensor %s", key)
+				}
+			}
+			alert.val = float64(maxPM10)
+		case "SNMPVOC":
+			maxVOC := float32(0)
+			for key, value := range alert.mapSums {
+				sumVOC := float32(value) / float32(alert.count)
+				if sumVOC > maxVOC {
+					maxVOC = sumVOC
+					alert.descriptor = fmt.Sprintf("Highest sensor %s", key)
+				}
+			}
+			alert.val = float64(maxVOC)
 		default:
 			alert.val = alert.val / float64(alert.count)
 		}

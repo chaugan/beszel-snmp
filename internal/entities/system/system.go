@@ -41,6 +41,13 @@ type Stats struct {
 	LoadAvg [3]float64 `json:"la,omitempty" cbor:"28,keyasint"`
 	Battery [2]uint8   `json:"bat,omitzero" cbor:"29,keyasint,omitzero"` // [percent, charge state, current]
 	MaxMem  float64    `json:"mm,omitempty" cbor:"30,keyasint,omitempty"`
+	// --- Additional sensor categories for SNMP agents ---
+	Humidity map[string]float64 `json:"h,omitempty" cbor:"31,keyasint,omitempty"`
+	CO2      map[string]float64 `json:"co2,omitempty" cbor:"32,keyasint,omitempty"`
+	Pressure map[string]float64 `json:"pr,omitempty" cbor:"33,keyasint,omitempty"`
+	PM25     map[string]float64 `json:"pm25,omitempty" cbor:"34,keyasint,omitempty"`
+	PM10     map[string]float64 `json:"pm10,omitempty" cbor:"35,keyasint,omitempty"`
+	VOC      map[string]float64 `json:"voc,omitempty" cbor:"36,keyasint,omitempty"`
 }
 
 type GPUData struct {
@@ -105,6 +112,15 @@ type Info struct {
 	BandwidthBytes uint64  `json:"bb" cbor:"18,keyasint"`
 	// TODO: remove load fields in future release in favor of load avg array
 	LoadAvg [3]float64 `json:"la,omitempty" cbor:"19,keyasint"`
+	// Agent type (e.g., "snmp") for UI behavior
+	AgentType string `json:"a,omitempty" cbor:"20,keyasint,omitempty"`
+	// Dashboard sensor summaries for SNMP agents
+	DashboardHumidity float64 `json:"dh,omitempty" cbor:"21,keyasint,omitempty"`
+	DashboardCO2      float64 `json:"dco2,omitempty" cbor:"22,keyasint,omitempty"`
+	DashboardPressure float64 `json:"dpr,omitempty" cbor:"23,keyasint,omitempty"`
+	DashboardPM25     float64 `json:"dpm25,omitempty" cbor:"24,keyasint,omitempty"`
+	DashboardPM10     float64 `json:"dpm10,omitempty" cbor:"25,keyasint,omitempty"`
+	DashboardVOC      float64 `json:"dvoc,omitempty" cbor:"26,keyasint,omitempty"`
 }
 
 // Final data structure to return to the hub

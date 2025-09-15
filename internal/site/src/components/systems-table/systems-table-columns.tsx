@@ -136,7 +136,7 @@ export default function SystemsTableColumns(viewMode: "table" | "grid"): ColumnD
 			accessorFn: ({ info }) => info.cpu,
 			id: "cpu",
 			name: () => t`CPU`,
-			cell: TableCellWithMeter,
+			cell: (ctx) => TableCellWithMeter(ctx),
 			Icon: CpuIcon,
 			header: sortableHeader,
 		},
@@ -145,7 +145,7 @@ export default function SystemsTableColumns(viewMode: "table" | "grid"): ColumnD
 			accessorFn: ({ info }) => info.mp,
 			id: "memory",
 			name: () => t`Memory`,
-			cell: TableCellWithMeter,
+			cell: (ctx) => TableCellWithMeter(ctx),
 			Icon: MemoryStickIcon,
 			header: sortableHeader,
 		},
@@ -153,7 +153,7 @@ export default function SystemsTableColumns(viewMode: "table" | "grid"): ColumnD
 			accessorFn: ({ info }) => info.dp,
 			id: "disk",
 			name: () => t`Disk`,
-			cell: TableCellWithMeter,
+			cell: (ctx) => TableCellWithMeter(ctx),
 			Icon: HardDriveIcon,
 			header: sortableHeader,
 		},
@@ -161,7 +161,7 @@ export default function SystemsTableColumns(viewMode: "table" | "grid"): ColumnD
 			accessorFn: ({ info }) => info.g,
 			id: "gpu",
 			name: () => "GPU",
-			cell: TableCellWithMeter,
+			cell: (ctx) => TableCellWithMeter(ctx),
 			Icon: GpuIcon,
 			header: sortableHeader,
 		},
@@ -180,7 +180,9 @@ export default function SystemsTableColumns(viewMode: "table" | "grid"): ColumnD
 			Icon: HourglassIcon,
 			header: sortableHeader,
 			cell(info: CellContext<SystemRecord, unknown>) {
-				const { info: sysInfo, status } = info.row.original
+				const system = info.row.original
+				if (system.info?.a === "snmp") return null
+				const { info: sysInfo, status } = system
 				// agent version
 				const { minor, patch } = parseSemVer(sysInfo.v)
 				let loadAverages = sysInfo.la
@@ -224,6 +226,7 @@ export default function SystemsTableColumns(viewMode: "table" | "grid"): ColumnD
 			header: sortableHeader,
 			cell(info) {
 				const sys = info.row.original
+				if (sys.info?.a === "snmp") return null
 				const userSettings = useStore($userSettings, { keys: ["unitNet"] })
 				if (sys.status === SystemStatus.Paused) {
 					return null
@@ -247,7 +250,7 @@ export default function SystemsTableColumns(viewMode: "table" | "grid"): ColumnD
 			cell(info) {
 				const val = info.getValue() as number
 				const userSettings = useStore($userSettings, { keys: ["unitTemp"] })
-				if (!val) {
+				if (val === undefined || val === null) {
 					return null
 				}
 				const { value, unit } = formatTemperature(val, userSettings.unitTemp)
@@ -269,10 +272,11 @@ export default function SystemsTableColumns(viewMode: "table" | "grid"): ColumnD
 			header: sortableHeader,
 			cell(info) {
 				const version = info.getValue() as string
+				const system = info.row.original
+				if (system.info?.a === "snmp") return null
 				if (!version) {
 					return null
 				}
-				const system = info.row.original
 				return (
 					<span className={cn("flex gap-1.5 items-center md:pe-5 tabular-nums", viewMode === "table" && "ps-0.5")}>
 						<IndicatorDot
@@ -303,7 +307,7 @@ export default function SystemsTableColumns(viewMode: "table" | "grid"): ColumnD
 	] as ColumnDef<SystemRecord>[]
 }
 
-function sortableHeader(context: HeaderContext<SystemRecord, unknown>) {
+export function sortableHeader(context: HeaderContext<SystemRecord, unknown>) {
 	const { column } = context
 	// @ts-ignore
 	const { Icon, hideSort, name }: { Icon: React.ElementType; name: () => string; hideSort: boolean } = column.columnDef
@@ -321,6 +325,8 @@ function sortableHeader(context: HeaderContext<SystemRecord, unknown>) {
 }
 
 function TableCellWithMeter(info: CellContext<SystemRecord, unknown>) {
+	const system = info.row.original
+	if (system.info?.a === "snmp") return null
 	const val = Number(info.getValue()) || 0
 	const threshold = getMeterState(val)
 	const meterClass = cn(

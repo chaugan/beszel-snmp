@@ -1,13 +1,29 @@
+# Build frontend (web UI)
+FROM oven/bun:1 AS web
+WORKDIR /site
+# Copy web app manifest/lock
+COPY internal/site/package.json ./
+COPY internal/site/bun.lockb ./
+RUN bun install --no-save
+# Copy rest of the web sources
+COPY internal/site .
+# Build the site (runs lingui extract/compile + vite build via package script)
+RUN bun run build
+
+# Build backend (Go hub)
 FROM --platform=$BUILDPLATFORM golang:alpine AS builder
 
 WORKDIR /app
 
 # Download Go modules
-COPY ../go.mod ../go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy source files
 COPY . ./
+
+# Copy built web assets into the expected path for go:embed
+COPY --from=web /site/dist ./internal/site/dist
 
 RUN apk add --no-cache \
     unzip \
