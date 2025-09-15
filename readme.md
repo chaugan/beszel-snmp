@@ -16,7 +16,8 @@ It has a friendly web interface, simple configuration, and is ready to use out o
 - **Lightweight**: Smaller and less resource-intensive than leading solutions.
 - **Simple**: Easy setup with little manual configuration required.
 - **Docker stats**: Tracks CPU, memory, and network usage history for each container.
-- **Alerts**: Configurable alerts for CPU, memory, disk, bandwidth, temperature, load average, and status.
+- **SNMP Support**: Monitor environmental sensors (temperature, humidity, CO2, pressure, PM2.5, PM10, VOC) via SNMP.
+- **Alerts**: Configurable alerts for CPU, memory, disk, bandwidth, temperature, load average, status, and SNMP sensors.
 - **Multi-user**: Users manage their own systems. Admins can share systems across users.
 - **OAuth / OIDC**: Supports many OAuth2 providers. Password auth can be disabled.
 - **Automatic backups**: Save to and restore from disk or S3-compatible storage.

@@ -1,0 +1,64 @@
+# Build stage
+FROM golang:alpine AS builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache git ca-certificates
+
+# Copy go mod files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY . ./
+
+# Build the SNMP agent
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -o /snmp-agent ./internal/cmd/snmp-hub-agent
+
+# Final stage
+FROM alpine:latest
+
+# Install runtime dependencies
+RUN apk add --no-cache ca-certificates
+
+# Create non-root user
+RUN adduser -D -s /bin/sh snmpagent
+
+# Copy the binary
+COPY --from=builder /snmp-agent /usr/local/bin/snmp-agent
+
+# Create config directory
+RUN mkdir -p /etc/snmp-agent && chown snmpagent:snmpagent /etc/snmp-agent
+
+# Switch to non-root user
+USER snmpagent
+
+# Set working directory
+WORKDIR /etc/snmp-agent
+
+# Expose SNMP trap port
+EXPOSE 9162/udp
+
+# Default environment variables
+ENV BESZEL_HUB_URL=""
+ENV BESZEL_HUB_TOKEN=""
+ENV BESZEL_HUB_KEY=""
+ENV BESZEL_SEND_INTERVAL_SEC=10
+ENV BESZEL_POLL_INTERVAL_SEC=30
+ENV BESZEL_RESOLVE_MIBS=false
+ENV BESZEL_MIB_PATHS="/usr/share/snmp/mibs"
+ENV BESZEL_ROUND1=true
+ENV BESZEL_LOG_UNKNOWN=true
+ENV BESZEL_COMMUNITIES="public"
+ENV BESZEL_LISTEN_ADDR=":9162"
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD pgrep snmp-agent || exit 1
+
+# Run the SNMP agent
+ENTRYPOINT ["/usr/local/bin/snmp-agent"]
+CMD ["/etc/snmp-agent/devices.json"]

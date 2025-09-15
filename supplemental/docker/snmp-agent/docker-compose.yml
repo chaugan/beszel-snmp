@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  snmp-agent:
+    build:
+      context: ../../
+      dockerfile: internal/dockerfile_snmp_agent
+    container_name: beszel-snmp-agent
+    restart: unless-stopped
+    ports:
+      - "9162:9162/udp"  # SNMP trap port
+    volumes:
+      - ./devices.json:/etc/snmp-agent/devices.json:ro
+    environment:
+      # Hub configuration (required)
+      - BESZEL_HUB_URL=http://192.168.86.211:8090
+      - BESZEL_HUB_TOKEN=9f8cab74-7bce-456f-834a-abae6156affc
+      - BESZEL_HUB_KEY=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILPpY9JtNQajEwypEglHSXwlZzQWbmHuwGZIsGtBk4uh
+      
+      # Agent defaults (optional - shown with defaults)
+      - BESZEL_SEND_INTERVAL_SEC=10
+      - BESZEL_POLL_INTERVAL_SEC=30
+      - BESZEL_RESOLVE_MIBS=false
+      - BESZEL_MIB_PATHS=/usr/share/snmp/mibs
+      - BESZEL_ROUND1=true
+      - BESZEL_LOG_UNKNOWN=true
+      - BESZEL_COMMUNITIES=public
+      - BESZEL_LISTEN_ADDR=:9162
+    networks:
+      - beszel-network
+
+networks:
+  beszel-network:
+    external: true
