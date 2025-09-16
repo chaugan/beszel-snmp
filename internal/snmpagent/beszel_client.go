@@ -123,9 +123,15 @@ func getUserAgent() string {
 func (dc *deviceClient) connect() {
 	opt := dc.getOptions()
 	missing := []string{}
-	if opt.Addr == "" { missing = append(missing, "hub url") }
-	if dc.cf.token == "" { missing = append(missing, "token") }
-	if dc.cf.pubKey == nil { missing = append(missing, "hub public key") }
+	if opt.Addr == "" {
+		missing = append(missing, "hub url")
+	}
+	if dc.cf.token == "" {
+		missing = append(missing, "token")
+	}
+	if dc.cf.pubKey == nil {
+		missing = append(missing, "hub public key")
+	}
 	if len(missing) > 0 {
 		slog.Warn("ws_not_configured", "missing", strings.Join(missing, ", "))
 		return
@@ -146,7 +152,11 @@ func (dc *deviceClient) connect() {
 	go conn.ReadLoop()
 }
 
-func (dc *deviceClient) OnOpen(conn *gws.Conn) { conn.SetDeadline(time.Now().Add(70 * time.Second)) }
+func (dc *deviceClient) OnOpen(conn *gws.Conn) {
+	conn.SetDeadline(time.Now().Add(70 * time.Second))
+	// Start heartbeat to keep connection alive
+	go dc.heartbeat()
+}
 
 func (dc *deviceClient) OnClose(conn *gws.Conn, err error) {
 	slog.Info("ws_closed", "ip", dc.ip, "err", strings.TrimPrefix(err.Error(), "gws: "))
@@ -155,7 +165,37 @@ func (dc *deviceClient) OnClose(conn *gws.Conn, err error) {
 	time.AfterFunc(5*time.Second, dc.connect)
 }
 
-func (dc *deviceClient) OnPing(conn *gws.Conn, message []byte) { conn.SetDeadline(time.Now().Add(70 * time.Second)); conn.WritePong(message) }
+// heartbeat sends periodic pings to keep the connection alive
+func (dc *deviceClient) heartbeat() {
+	// Use 30 seconds or half of send interval, whichever is smaller
+	interval := 30 * time.Second
+	if dc.cfg.Defaults.SendIntervalSec > 0 && dc.cfg.Defaults.SendIntervalSec < 60 {
+		interval = time.Duration(dc.cfg.Defaults.SendIntervalSec/2) * time.Second
+	}
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			if dc.Conn != nil && dc.hubVerified {
+				// Send ping to keep connection alive
+				if err := dc.Conn.WritePing(nil); err != nil {
+					slog.Debug("heartbeat_ping_failed", "ip", dc.ip, "err", err)
+					return
+				}
+				slog.Debug("heartbeat_ping_sent", "ip", dc.ip)
+			} else {
+				return // Connection closed or not verified
+			}
+		}
+	}
+}
+
+func (dc *deviceClient) OnPing(conn *gws.Conn, message []byte) {
+	conn.SetDeadline(time.Now().Add(70 * time.Second))
+	conn.WritePong(message)
+}
 
 func (dc *deviceClient) OnMessage(conn *gws.Conn, message *gws.Message) {
 	defer message.Close()
@@ -171,12 +211,18 @@ func (dc *deviceClient) OnMessage(conn *gws.Conn, message *gws.Message) {
 	switch req.Action {
 	case common.CheckFingerprint:
 		var fr common.FingerprintRequest
-		if err := cbor.Unmarshal(req.Data, &fr); err != nil { return }
-		if err := dc.verifySignature(fr.Signature); err != nil { return }
+		if err := cbor.Unmarshal(req.Data, &fr); err != nil {
+			return
+		}
+		if err := dc.verifySignature(fr.Signature); err != nil {
+			return
+		}
 		dc.hubVerified = true
 		slog.Info("hub_verified", "ip", dc.ip.String())
 		resp := &common.FingerprintResponse{Fingerprint: dc.ds.finger}
-		if fr.NeedSysInfo { resp.Hostname = dc.ds.hostname }
+		if fr.NeedSysInfo {
+			resp.Hostname = dc.ds.hostname
+		}
 		_ = dc.sendMessage(resp)
 	case common.GetData:
 		_ = dc.send()
@@ -192,20 +238,44 @@ func (dc *deviceClient) verifySignature(signature []byte) error {
 }
 
 func (dc *deviceClient) send() error {
-	if dc.Conn == nil || !dc.hubVerified { return nil }
+	if dc.Conn == nil || !dc.hubVerified {
+		return nil
+	}
 	dc.ds.mu.Lock()
 	cd := dc.ds.buildCombinedData(beszel.Version)
 	dc.ds.mu.Unlock()
-	if len(cd.Stats.Temperatures) == 0 { return nil }
+
+	// Check if we have any sensor data to send
+	hasData := len(cd.Stats.Temperatures) > 0 ||
+		len(cd.Stats.Humidity) > 0 ||
+		len(cd.Stats.CO2) > 0 ||
+		len(cd.Stats.Pressure) > 0 ||
+		len(cd.Stats.PM25) > 0 ||
+		len(cd.Stats.PM10) > 0 ||
+		len(cd.Stats.VOC) > 0
+
+	if !hasData {
+		return nil
+	}
+
 	err := dc.sendMessage(cd)
 	if err == nil {
-		slog.Info("ws_sent", "ip", dc.ip.String(), "temps", len(cd.Stats.Temperatures))
+		slog.Info("ws_sent", "ip", dc.ip.String(),
+			"temps", len(cd.Stats.Temperatures),
+			"humidity", len(cd.Stats.Humidity),
+			"co2", len(cd.Stats.CO2),
+			"pressure", len(cd.Stats.Pressure),
+			"pm25", len(cd.Stats.PM25),
+			"pm10", len(cd.Stats.PM10),
+			"voc", len(cd.Stats.VOC))
 	}
 	return err
 }
 
 func (dc *deviceClient) sendMessage(data any) error {
 	bytes, err := cbor.Marshal(data)
-	if err != nil { return err }
+	if err != nil {
+		return err
+	}
 	return dc.Conn.WriteMessage(gws.OpcodeBinary, bytes)
 }

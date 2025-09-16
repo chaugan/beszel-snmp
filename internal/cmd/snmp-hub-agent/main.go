@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"strconv"
 	"strings"
@@ -12,23 +13,31 @@ import (
 )
 
 func main() {
+	// Configure logging level
+	debugMode := getEnv("BESZEL_DEBUG", "false")
+	if debugMode == "true" {
+		slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		})))
+	}
+
 	if len(os.Args) < 2 {
 		log.Fatal("usage: snmp-hub-agent <devices.json>")
 	}
 	devicesPath := os.Args[1]
-	
+
 	// Load devices configuration
 	devices, err := loadDevicesConfig(devicesPath)
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	// Create config from environment variables and devices
 	cfg, err := createConfigFromEnv(devices)
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	a, err := snmpagent.NewAgent(cfg)
 	if err != nil {
 		log.Fatal(err)
@@ -44,15 +53,15 @@ func loadDevicesConfig(path string) ([]snmpagent.DeviceConfig, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var config struct {
 		Devices []snmpagent.DeviceConfig `json:"devices"`
 	}
-	
+
 	if err := json.Unmarshal(b, &config); err != nil {
 		return nil, fmt.Errorf("invalid devices config: %w", err)
 	}
-	
+
 	return config.Devices, nil
 }
 
@@ -61,12 +70,12 @@ func createConfigFromEnv(devices []snmpagent.DeviceConfig) (*snmpagent.Config, e
 	cfg := &snmpagent.Config{
 		Devices: devices,
 	}
-	
+
 	// Hub configuration from environment
 	cfg.Hub.URL = getEnv("BESZEL_HUB_URL", "")
 	cfg.Hub.Token = getEnv("BESZEL_HUB_TOKEN", "")
 	cfg.Hub.Key = getEnv("BESZEL_HUB_KEY", "")
-	
+
 	// Defaults configuration from environment
 	cfg.Defaults.SendIntervalSec = getEnvInt("BESZEL_SEND_INTERVAL_SEC", 10)
 	cfg.Defaults.PollIntervalSec = getEnvInt("BESZEL_POLL_INTERVAL_SEC", 30)
@@ -76,7 +85,7 @@ func createConfigFromEnv(devices []snmpagent.DeviceConfig) (*snmpagent.Config, e
 	cfg.Defaults.LogUnknown = getEnvBool("BESZEL_LOG_UNKNOWN", true)
 	cfg.Defaults.Communities = getEnvStringSlice("BESZEL_COMMUNITIES", []string{"public"})
 	cfg.Defaults.ListenAddr = getEnv("BESZEL_LISTEN_ADDR", ":9162")
-	
+
 	// Validate required fields
 	if cfg.Hub.URL == "" {
 		return nil, fmt.Errorf("BESZEL_HUB_URL environment variable is required")
@@ -87,7 +96,7 @@ func createConfigFromEnv(devices []snmpagent.DeviceConfig) (*snmpagent.Config, e
 	if cfg.Hub.Key == "" {
 		return nil, fmt.Errorf("BESZEL_HUB_KEY environment variable is required")
 	}
-	
+
 	return cfg, nil
 }
 

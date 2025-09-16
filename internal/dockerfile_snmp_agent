@@ -54,6 +54,7 @@ ENV BESZEL_ROUND1=true
 ENV BESZEL_LOG_UNKNOWN=true
 ENV BESZEL_COMMUNITIES="public"
 ENV BESZEL_LISTEN_ADDR=":9162"
+ENV BESZEL_DEBUG=false
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

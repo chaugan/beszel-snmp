@@ -7,7 +7,8 @@ services:
       dockerfile: internal/dockerfile_snmp_agent
     container_name: beszel-snmp-agent
     restart: unless-stopped
-    network_mode: host  # Use host networking to preserve source IP
+    ports:
+      - "9162:9162/udp"  # SNMP trap port
     volumes:
       - ./devices.json:/etc/snmp-agent/devices.json:ro
     environment:
@@ -28,3 +29,9 @@ services:
       
       # Debug logging (optional)
       - BESZEL_DEBUG=false
+    networks:
+      - beszel-network
+
+networks:
+  beszel-network:
+    external: true

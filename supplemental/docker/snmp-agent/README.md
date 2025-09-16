@@ -42,6 +42,32 @@ This directory contains the Docker setup for the Beszel SNMP Agent, which collec
    docker-compose up -d
    ```
 
+## Docker Networking
+
+The SNMP agent uses **host networking mode** to preserve the original source IP addresses of SNMP traps. This is important because:
+
+- **Without host networking**: The agent sees traps as coming from Docker's internal IP (e.g., `172.17.0.1`)
+- **With host networking**: The agent sees traps as coming from the actual device IP (e.g., `192.168.86.100`)
+
+This ensures that each SNMP device (switch, router, etc.) appears as a separate system in the Beszel hub with its correct IP address and fingerprint.
+
+### Alternative: Bridge Networking
+
+If you prefer to use bridge networking, you can modify the `docker-compose.yml`:
+
+```yaml
+services:
+  snmp-agent:
+    # ... other config ...
+    ports:
+      - "9162:9162/udp"
+    # Remove: network_mode: host
+    networks:
+      - beszel-network
+```
+
+However, this will cause all SNMP devices to appear with the same IP address in the hub.
+
 ## Configuration
 
 ### Environment Variables
@@ -60,6 +86,7 @@ This directory contains the Docker setup for the Beszel SNMP Agent, which collec
 - `BESZEL_LOG_UNKNOWN`: Log unknown OIDs (default: true)
 - `BESZEL_COMMUNITIES`: Comma-separated SNMP communities (default: `public`)
 - `BESZEL_LISTEN_ADDR`: Address to listen for SNMP traps (default: `:9162`)
+- `BESZEL_DEBUG`: Enable debug logging to see heartbeat messages (default: false)
 
 ### Device Configuration
 
@@ -107,6 +134,18 @@ docker run -d \
 
 ## Troubleshooting
 
+### WebSocket Connection Issues
+
+If you see logs like:
+```
+INFO ws_connect_attempt addr=ws://192.168.86.211:8090/api/beszel/agent-connect ip=192.168.86.243
+INFO ws_connected ip=192.168.86.243
+INFO hub_verified ip=192.168.86.243
+INFO ws_closed ip=192.168.86.243 err="connection closed, code=1000, reason="
+```
+
+This indicates the WebSocket connection is closing due to inactivity. The agent now includes a heartbeat mechanism to prevent this issue.
+
 ### Check logs
 ```bash
 docker-compose logs -f snmp-agent
@@ -120,6 +159,22 @@ docker-compose exec snmp-agent cat /etc/snmp-agent/devices.json
 ### Test SNMP connectivity
 ```bash
 docker-compose exec snmp-agent snmpwalk -v2c -c public 192.168.1.100
+```
+
+### Debug WebSocket connection
+```bash
+# Enable debug logging to see heartbeat messages
+# Add to docker-compose.yml: - BESZEL_DEBUG=true
+# Then restart: docker-compose up -d
+
+# Check if heartbeat is working
+docker-compose logs snmp-agent | grep heartbeat
+
+# Monitor connection status
+docker-compose logs -f snmp-agent | grep -E "(ws_|hub_)"
+
+# See all debug messages
+docker-compose logs -f snmp-agent
 ```
 
 ## Security Notes

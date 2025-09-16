@@ -95,34 +95,6 @@ Config highlights (v2c):
   - category accepts: temperature, humidity, co2, pressure, pm25, pm10, voc
   - unit should match the list above where applicable
 
-## Building and publishing a custom Hub image
-
-You can build and publish your own Hub image (for example, to Docker Hub under `chaugan/beszel`) and use it in unRaid.
-
-1. Build the web UI (required for embedding):
-   - With bun:
-     - bun install --cwd ./internal/site
-     - bun run --cwd ./internal/site build
-   - Or with npm:
-     - npm ci --prefix ./internal/site
-     - npm run --prefix ./internal/site build
-
-2. Log in to Docker Hub:
-   - docker login -u <your_dockerhub_username>
-
-3. Build and push the image:
-   - Single-arch (amd64):
-     - docker build -f ./internal/dockerfile_hub -t chaugan/beszel:snmp-dev .
-     - docker push chaugan/beszel:snmp-dev
-   - Multi-arch (recommended):
-     - docker buildx create --use
-     - docker buildx build --platform linux/amd64,linux/arm64 -f ./internal/dockerfile_hub -t chaugan/beszel:latest -t chaugan/beszel:snmp-YYYYMMDD --push .
-
-4. Use in unRaid:
-   - Set the container Repository to `chaugan/beszel:latest` (or your chosen tag) in the template and apply updates.
-
-Notes:
-- No GitHub fork is required to publish a custom image. A fork is useful for version control and CI.
 - The hub UI now detects `AgentType=snmp` and only renders sensor charts that have data.
 
 ## Help and discussion
