@@ -1,0 +1,140 @@
+{
+  "devices": [
+    {
+      "name": "Dell iDRAC Server",
+      "ip": "192.168.86.211",
+      "community": "public",
+      "poll_interval_sec": 30,
+      "metrics": {
+        "system_temperature": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.6.1",
+          "name": "System Temperature",
+          "unit": "°C",
+          "category": "temperature",
+          "scale": 0.1
+        },
+        "cpu_temperature": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.6.2",
+          "name": "CPU Temperature",
+          "unit": "°C",
+          "category": "temperature",
+          "scale": 0.1
+        },
+        "ambient_temperature": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.6.3",
+          "name": "Ambient Temperature",
+          "unit": "°C",
+          "category": "temperature",
+          "scale": 0.1
+        },
+        "system_power": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.7.1",
+          "name": "System Power Consumption",
+          "unit": "W",
+          "category": "power",
+          "scale": 1
+        },
+        "system_power_limit": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.7.2",
+          "name": "System Power Limit",
+          "unit": "W",
+          "category": "power",
+          "scale": 1
+        },
+        "fan_speed_1": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.8.1",
+          "name": "Fan 1 Speed",
+          "unit": "RPM",
+          "category": "fan",
+          "scale": 1
+        },
+        "fan_speed_2": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.8.2",
+          "name": "Fan 2 Speed",
+          "unit": "RPM",
+          "category": "fan",
+          "scale": 1
+        },
+        "system_uptime": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.2.1",
+          "name": "System Uptime",
+          "unit": "seconds",
+          "category": "system",
+          "scale": 1
+        },
+        "cpu_usage": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.5.1",
+          "name": "CPU Usage",
+          "unit": "%",
+          "category": "cpu",
+          "scale": 1
+        },
+        "memory_usage": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.5.2",
+          "name": "Memory Usage",
+          "unit": "%",
+          "category": "memory",
+          "scale": 1
+        },
+        "voltage_12v": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.9.1",
+          "name": "12V Rail Voltage",
+          "unit": "V",
+          "category": "voltage",
+          "scale": 0.01
+        },
+        "voltage_5v": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.9.2",
+          "name": "5V Rail Voltage",
+          "unit": "V",
+          "category": "voltage",
+          "scale": 0.01
+        },
+        "voltage_3v3": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.9.3",
+          "name": "3.3V Rail Voltage",
+          "unit": "V",
+          "category": "voltage",
+          "scale": 0.01
+        }
+      }
+    },
+    {
+      "name": "Dell Chassis Management",
+      "ip": "192.168.86.212",
+      "community": "public",
+      "poll_interval_sec": 60,
+      "metrics": {
+        "chassis_power": {
+          "oid": ".1.3.6.1.4.1.674.10892.2.1.1.2.1.3.1",
+          "name": "Chassis Power Consumption",
+          "unit": "W",
+          "category": "power",
+          "scale": 1
+        },
+        "chassis_temperature": {
+          "oid": ".1.3.6.1.4.1.674.10892.2.1.1.2.1.4.1",
+          "name": "Chassis Temperature",
+          "unit": "°C",
+          "category": "temperature",
+          "scale": 0.1
+        },
+        "chassis_fan_speed": {
+          "oid": ".1.3.6.1.4.1.674.10892.2.1.1.2.1.5.1",
+          "name": "Chassis Fan Speed",
+          "unit": "RPM",
+          "category": "fan",
+          "scale": 1
+        },
+        "chassis_voltage": {
+          "oid": ".1.3.6.1.4.1.674.10892.2.1.1.2.1.6.1",
+          "name": "Chassis Voltage",
+          "unit": "V",
+          "category": "voltage",
+          "scale": 0.01
+        }
+      }
+    }
+  ]
+}
+

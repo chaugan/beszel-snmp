@@ -70,32 +70,95 @@ UI behavior in All Systems:
 - SNMP systems are listed in a separate "SNMP Sensors" table below, with columns for the categories above.
 - Cells populate only when the system has data in that category (blank otherwise).
 
-## SNMP hub agent
+## SNMP Monitor
 
-This repository includes an optional SNMP hub agent that listens for/polls SNMP devices and forwards metrics to the Beszel hub as a "SNMP" agent. OS charts are hidden for SNMP agents; only relevant sensor charts are shown.
+This repository includes an SNMP Monitor that can be deployed as a Docker container to poll SNMP devices and forward metrics to the Beszel hub. The monitor includes a web interface for easy configuration management.
 
-- Source: `internal/cmd/snmp-hub-agent`
-- Config example: `configs/snmp-hub.v2c.example.json`
+### Features
 
-Build only the SNMP hub agent (no UI build required):
+- **Web Interface**: Configure SNMP devices, hub settings, and polling intervals through a web UI
+- **Per-Device Connections**: Each monitored device gets its own connection to the hub with unique fingerprints
+- **Dynamic Configuration**: Changes made through the web interface take effect immediately
+- **Environment Variable Support**: Can be configured via environment variables or web interface
+- **Docker Ready**: Pre-built Docker image available on Docker Hub
 
-- make build-snmp-hub-agent
-  - Output: `./build/beszel-snmp-agent_<os>_<arch>`
+### Quick Start
 
-Run:
+#### Using Docker
 
-- ./build/beszel-snmp-agent_<os>_<arch> ./configs/snmp-hub.v2c.example.json
+1. **Pull the image**:
+   ```bash
+   docker pull chaugan/beszel-snmp-monitor:latest
+   ```
 
-Config highlights (v2c):
-- `hub.url` – Hub URL (e.g., http://<hub>:8090)
-- `hub.token` – Hub API token
-- `hub.key` – Public key used to register the system
-- `defaults.*` – Global polling and listener settings
-- `devices[].oids` – Map of OID -> { name, kind, unit, category, scale }
-  - category accepts: temperature, humidity, co2, pressure, pm25, pm10, voc
-  - unit should match the list above where applicable
+2. **Run with environment variables**:
+   ```bash
+   docker run -d \
+     --name beszel-snmp-monitor \
+     -p 6655:6655 \
+     -e BESZEL_HUB_URL=http://your-hub:8090 \
+     -e BESZEL_HUB_TOKEN=your-token \
+     -e BESZEL_HUB_KEY=your-ssh-key \
+     -v ./config.json:/etc/beszel/snmp-monitor.json \
+     chaugan/beszel-snmp-monitor:latest
+   ```
 
-- The hub UI now detects `AgentType=snmp` and only renders sensor charts that have data.
+3. **Access the web interface**:
+   - Open `http://your-server:6655` in your browser
+   - Configure your SNMP devices and hub settings
+   - Changes take effect immediately when saved
+
+#### Configuration
+
+The SNMP Monitor supports configuration through:
+
+- **Web Interface** (recommended): Access the web UI to configure devices and settings
+- **Environment Variables**: Set `BESZEL_HUB_URL`, `BESZEL_HUB_TOKEN`, `BESZEL_HUB_KEY`, `BESZEL_WEB_PORT`
+- **JSON Config File**: Mount a custom config file to `/etc/beszel/snmp-monitor.json`
+
+#### Configuration Format
+
+```json
+{
+  "hub": {
+    "url": "http://your-hub:8090",
+    "token": "your-hub-token",
+    "key": "your-ssh-public-key"
+  },
+  "web_server": {
+    "port": 6655
+  },
+  "devices": [
+    {
+      "name": "Dell iDRAC Server",
+      "ip": "192.168.1.100",
+      "community": "public",
+      "poll_interval_sec": 30,
+      "metrics": {
+        "cpu_temperature": {
+          "oid": ".1.3.6.1.4.1.674.10892.1.700.20.1.6.2",
+          "name": "CPU Temperature",
+          "unit": "°C",
+          "category": "temperature",
+          "scale": 0.1
+        }
+      }
+    }
+  ]
+}
+```
+
+#### Supported Categories
+
+- **temperature** - Temperature sensors (°C/°F)
+- **humidity** - Humidity sensors (%)
+- **co2** - CO2 sensors (ppm)
+- **pressure** - Pressure sensors (hPa)
+- **pm25** - PM2.5 sensors (µg/m³)
+- **pm10** - PM10 sensors (µg/m³)
+- **voc** - VOC sensors (ppb)
+
+The hub UI detects `AgentType=snmp` and only renders sensor charts that have data. Each device appears as a separate system in the Beszel UI with its own IP address and unique fingerprint.
 
 ## Help and discussion
 

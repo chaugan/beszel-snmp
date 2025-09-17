@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  snmp-monitor:
+    build:
+      context: ../../
+      dockerfile: internal/dockerfile_container_agent
+    container_name: beszel-snmp-monitor
+    ports:
+      - "6655:6655"
+    volumes:
+      - ./config.json:/etc/beszel/snmp-monitor.json:rw
+      - ./logs:/var/log/beszel
+    environment:
+      - CONFIG_PATH=/etc/beszel/snmp-monitor.json
+      - BESZEL_HUB_URL=http://192.168.86.211:8090
+      - BESZEL_HUB_TOKEN=9f8cab74-7bce-456f-834a-abae6156affc
+      - BESZEL_HUB_KEY=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILPpY9JtNQajEwypEglHSXwlZzQWbmHuwGZIsGtBk4uh
+      - BESZEL_WEB_PORT=6655
+    restart: unless-stopped
+    networks:
+      - beszel-network
+
+networks:
+  beszel-network:
+    driver: bridge
+

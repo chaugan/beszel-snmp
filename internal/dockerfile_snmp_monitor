@@ -1,0 +1,59 @@
+FROM golang:1.25-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache git
+
+# Set working directory
+WORKDIR /app
+
+# Copy go mod files
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy source code
+COPY . .
+
+# Build the SNMP monitor
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o snmp-monitor ./internal/cmd/snmp-monitor
+
+# Final stage
+FROM alpine:latest
+
+# Install runtime dependencies
+RUN apk --no-cache add ca-certificates
+
+# Create non-root user
+RUN adduser -D -s /bin/sh beszel
+
+# Create config directory and ensure it exists with proper permissions
+RUN mkdir -p /etc/beszel && \
+    touch /etc/beszel/snmp-monitor.json && \
+    chown -R beszel:beszel /etc/beszel
+
+# Set working directory
+WORKDIR /app
+
+# Copy binary from builder
+COPY --from=builder /app/snmp-monitor .
+
+# Copy example config
+COPY --from=builder /app/internal/snmpmonitor/example-config.json /etc/beszel/snmp-monitor.json
+
+# Change ownership
+RUN chown -R beszel:beszel /app
+
+# Switch to non-root user
+USER beszel
+
+# Expose web server port
+EXPOSE 6655
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:6655/api/status || exit 1
+
+# Run the SNMP monitor
+CMD ["./snmp-monitor"]
+

@@ -7,7 +7,7 @@ SKIP_WEB ?= false
 # Set executable extension based on target OS
 EXE_EXT := $(if $(filter windows,$(OS)),.exe,)
 
-.PHONY: tidy build-agent build-hub build-hub-dev build clean lint dev-server dev-agent dev-hub dev generate-locales build-snmp-hub-agent
+.PHONY: tidy build-agent build-hub build-hub-dev build clean lint dev-server dev-agent dev-hub dev generate-locales build-snmp-monitor
 .DEFAULT_GOAL := build
 
 clean:
@@ -59,9 +59,9 @@ build-hub-dev: tidy
 
 build: build-agent build-hub
 
-# Build SNMP hub agent only (no UI or .NET prerequisites)
-build-snmp-hub-agent: tidy
-	GOOS=$(OS) GOARCH=$(ARCH) go build -o ./build/beszel-snmp-agent_$(OS)_$(ARCH)$(EXE_EXT) -ldflags "-w -s" ./internal/cmd/snmp-hub-agent
+# Build SNMP monitor
+build-snmp-monitor: tidy
+	GOOS=$(OS) GOARCH=$(ARCH) go build -o ./build/beszel-snmp-monitor_$(OS)_$(ARCH)$(EXE_EXT) -ldflags "-w -s" ./internal/cmd/snmp-monitor
 
 generate-locales:
 	@if [ ! -f ./internal/site/src/locales/en/en.ts ]; then \
