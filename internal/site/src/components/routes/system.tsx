@@ -705,14 +705,14 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 							description={t`Temperatures of system sensors`}
 							cornerEl={<FilterBar store={$temperatureFilter} />}
 						>
-							<TemperatureChart chartData={chartData} />
+							<TemperatureChart chartData={chartData} isSnmpAgent={isSnmpAgent} />
 						</ChartCard>
 					)}
 
 					{/* Humidity chart */}
 					{systemStats.at(-1)?.stats.h && (
 						<ChartCard empty={dataEmpty} grid={grid} title={t`Humidity`} description={t`Relative humidity of sensors`}>
-							<HumidityChart chartData={chartData} />
+							<HumidityChart chartData={chartData} isSnmpAgent={isSnmpAgent} />
 						</ChartCard>
 					)}
 
