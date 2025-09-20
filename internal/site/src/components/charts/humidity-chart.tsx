@@ -1,4 +1,4 @@
-import { CartesianGrid, Line, LineChart, YAxis, Area, AreaChart } from "recharts"
+import { CartesianGrid, Line, LineChart, YAxis } from "recharts"
 
 import {
 	ChartContainer,
@@ -12,7 +12,7 @@ import { cn, formatShortDate, toFixedFloat, chartMargin, decimalString } from "@
 import { ChartData } from "@/types"
 import { memo, useMemo } from "react"
 
-export default memo(function HumidityChart({ chartData, isSnmpAgent = false }: { chartData: ChartData; isSnmpAgent?: boolean }) {
+export default memo(function HumidityChart({ chartData }: { chartData: ChartData }) {
 	if (chartData.systemStats.length === 0) {
 		return null
 	}
@@ -50,88 +50,45 @@ export default memo(function HumidityChart({ chartData, isSnmpAgent = false }: {
 					"opacity-100": true,
 				})}
 			>
-				{isSnmpAgent ? (
-					<AreaChart accessibilityLayer data={newChartData.data} margin={chartMargin}>
-						<CartesianGrid vertical={false} />
-						<YAxis
-							direction="ltr"
-							orientation={chartData.orientation}
-							className="tracking-tighter"
-							domain={[0, 100]}
-							width={48}
-							tickFormatter={(val) => `${toFixedFloat(val, 0)}%`}
-							tickLine={false}
-							axisLine={false}
-						/>
-						{xAxis(chartData)}
-						<ChartTooltip
-							animationEasing="ease-out"
-							animationDuration={150}
-							// @ts-ignore
-							itemSorter={(a, b) => b.value - a.value}
-							content={
-								<ChartTooltipContent
-									labelFormatter={(_, data) => formatShortDate(data[0].payload.created)}
-									contentFormatter={(item) => `${decimalString(item.value)} %`}
-								/>
-							}
-						/>
-						{colors.map((key) => (
-							<Area
-								key={key}
-								dataKey={key}
-								name={key}
-								type="monotoneX"
-								fill={newChartData.colors[key]}
-								fillOpacity={0.2}
-								stroke={newChartData.colors[key]}
-								isAnimationActive={false}
-								stackId="a"
+				<LineChart accessibilityLayer data={newChartData.data} margin={chartMargin}>
+					<CartesianGrid vertical={false} />
+					<YAxis
+						direction="ltr"
+						orientation={chartData.orientation}
+						className="tracking-tighter"
+						domain={[0, 100]}
+						width={48}
+						tickFormatter={(val) => `${toFixedFloat(val, 0)}%`}
+						tickLine={false}
+						axisLine={false}
+					/>
+					{xAxis(chartData)}
+					<ChartTooltip
+						animationEasing="ease-out"
+						animationDuration={150}
+						// @ts-ignore
+						itemSorter={(a, b) => b.value - a.value}
+						content={
+							<ChartTooltipContent
+								labelFormatter={(_, data) => formatShortDate(data[0].payload.created)}
+								contentFormatter={(item) => `${decimalString(item.value)} %`}
 							/>
-						))}
-						{colors.length < 12 && <ChartLegend content={<ChartLegendContent />} />}
-					</AreaChart>
-				) : (
-					<LineChart accessibilityLayer data={newChartData.data} margin={chartMargin}>
-						<CartesianGrid vertical={false} />
-						<YAxis
-							direction="ltr"
-							orientation={chartData.orientation}
-							className="tracking-tighter"
-							domain={[0, 100]}
-							width={48}
-							tickFormatter={(val) => `${toFixedFloat(val, 0)}%`}
-							tickLine={false}
-							axisLine={false}
+						}
+					/>
+					{colors.map((key) => (
+						<Line
+							key={key}
+							dataKey={key}
+							name={key}
+							type="monotoneX"
+							dot={false}
+							strokeWidth={1.5}
+							stroke={newChartData.colors[key]}
+							isAnimationActive={false}
 						/>
-						{xAxis(chartData)}
-						<ChartTooltip
-							animationEasing="ease-out"
-							animationDuration={150}
-							// @ts-ignore
-							itemSorter={(a, b) => b.value - a.value}
-							content={
-								<ChartTooltipContent
-									labelFormatter={(_, data) => formatShortDate(data[0].payload.created)}
-									contentFormatter={(item) => `${decimalString(item.value)} %`}
-								/>
-							}
-						/>
-						{colors.map((key) => (
-							<Line
-								key={key}
-								dataKey={key}
-								name={key}
-								type="monotoneX"
-								dot={false}
-								strokeWidth={1.5}
-								stroke={newChartData.colors[key]}
-								isAnimationActive={false}
-							/>
-						))}
-						{colors.length < 12 && <ChartLegend content={<ChartLegendContent />} />}
-					</LineChart>
-				)}
+					))}
+					{colors.length < 12 && <ChartLegend content={<ChartLegendContent />} />}
+				</LineChart>
 			</ChartContainer>
 		</div>
 	)

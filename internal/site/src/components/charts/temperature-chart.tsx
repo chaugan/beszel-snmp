@@ -1,4 +1,4 @@
-import { CartesianGrid, Line, LineChart, YAxis, Area, AreaChart } from "recharts"
+import { CartesianGrid, Line, LineChart, YAxis } from "recharts"
 
 import {
 	ChartContainer,
@@ -15,7 +15,7 @@ import { $temperatureFilter, $userSettings } from "@/lib/stores"
 import { useStore } from "@nanostores/react"
 import { useYAxisWidth } from "./hooks"
 
-export default memo(function TemperatureChart({ chartData, isSnmpAgent = false }: { chartData: ChartData; isSnmpAgent?: boolean }) {
+export default memo(function TemperatureChart({ chartData }: { chartData: ChartData }) {
 	const filter = useStore($temperatureFilter)
 	const userSettings = useStore($userSettings)
 	const { yAxisWidth, updateYAxisWidth } = useYAxisWidth()
@@ -59,115 +59,58 @@ export default memo(function TemperatureChart({ chartData, isSnmpAgent = false }
 					"opacity-100": yAxisWidth,
 				})}
 			>
-				{isSnmpAgent ? (
-					<AreaChart accessibilityLayer data={newChartData.data} margin={chartMargin}>
-						<CartesianGrid vertical={false} />
-						<YAxis
-							direction="ltr"
-							orientation={chartData.orientation}
-							className="tracking-tighter"
-							domain={[0, "auto"]}
-							width={yAxisWidth}
-							tickFormatter={(val) => {
-								const { value, unit } = formatTemperature(val, userSettings.unitTemp)
-								return updateYAxisWidth(toFixedFloat(value, 2) + " " + unit)
-							}}
-							tickLine={false}
-							axisLine={false}
-						/>
-						{xAxis(chartData)}
-						<ChartTooltip
-							animationEasing="ease-out"
-							animationDuration={150}
-							// @ts-ignore
-							itemSorter={(a, b) => b.value - a.value}
-							content={
-								<ChartTooltipContent
-									labelFormatter={(_, data) => formatShortDate(data[0].payload.created)}
-									contentFormatter={(item) => {
-										const { value, unit } = formatTemperature(item.value, userSettings.unitTemp)
-										return decimalString(value) + " " + unit
-									}}
-									filter={filter}
-								/>
-							}
-						/>
-						{colors.map((key) => {
-							const filtered = filter && !key.toLowerCase().includes(filter.toLowerCase())
-							let fillOpacity = filtered ? 0.05 : 0.2
-							let strokeOpacity = filtered ? 0.1 : 1
-							return (
-								<Area
-									key={key}
-									dataKey={key}
-									name={key}
-									type="monotoneX"
-									fill={newChartData.colors[key]}
-									fillOpacity={fillOpacity}
-									stroke={newChartData.colors[key]}
-									strokeOpacity={strokeOpacity}
-									activeDot={{ opacity: filtered ? 0 : 1 }}
-									isAnimationActive={false}
-									stackId="a"
-								/>
-							)
-						})}
-						{colors.length < 12 && <ChartLegend content={<ChartLegendContent />} />}
-					</AreaChart>
-				) : (
-					<LineChart accessibilityLayer data={newChartData.data} margin={chartMargin}>
-						<CartesianGrid vertical={false} />
-						<YAxis
-							direction="ltr"
-							orientation={chartData.orientation}
-							className="tracking-tighter"
-							domain={[0, "auto"]}
-							width={yAxisWidth}
-							tickFormatter={(val) => {
-								const { value, unit } = formatTemperature(val, userSettings.unitTemp)
-								return updateYAxisWidth(toFixedFloat(value, 2) + " " + unit)
-							}}
-							tickLine={false}
-							axisLine={false}
-						/>
-						{xAxis(chartData)}
-						<ChartTooltip
-							animationEasing="ease-out"
-							animationDuration={150}
-							// @ts-ignore
-							itemSorter={(a, b) => b.value - a.value}
-							content={
-								<ChartTooltipContent
-									labelFormatter={(_, data) => formatShortDate(data[0].payload.created)}
-									contentFormatter={(item) => {
-										const { value, unit } = formatTemperature(item.value, userSettings.unitTemp)
-										return decimalString(value) + " " + unit
-									}}
-									filter={filter}
-								/>
-							}
-						/>
-						{colors.map((key) => {
-							const filtered = filter && !key.toLowerCase().includes(filter.toLowerCase())
-							let strokeOpacity = filtered ? 0.1 : 1
-							return (
-								<Line
-									key={key}
-									dataKey={key}
-									name={key}
-									type="monotoneX"
-									dot={false}
-									strokeWidth={1.5}
-									stroke={newChartData.colors[key]}
-									strokeOpacity={strokeOpacity}
-									activeDot={{ opacity: filtered ? 0 : 1 }}
-									isAnimationActive={false}
-								/>
-							)
-						})}
-						{colors.length < 12 && <ChartLegend content={<ChartLegendContent />} />}
-					</LineChart>
-				)}
+				<LineChart accessibilityLayer data={newChartData.data} margin={chartMargin}>
+					<CartesianGrid vertical={false} />
+					<YAxis
+						direction="ltr"
+						orientation={chartData.orientation}
+						className="tracking-tighter"
+						domain={[0, "auto"]}
+						width={yAxisWidth}
+						tickFormatter={(val) => {
+							const { value, unit } = formatTemperature(val, userSettings.unitTemp)
+							return updateYAxisWidth(toFixedFloat(value, 2) + " " + unit)
+						}}
+						tickLine={false}
+						axisLine={false}
+					/>
+					{xAxis(chartData)}
+					<ChartTooltip
+						animationEasing="ease-out"
+						animationDuration={150}
+						// @ts-ignore
+						itemSorter={(a, b) => b.value - a.value}
+						content={
+							<ChartTooltipContent
+								labelFormatter={(_, data) => formatShortDate(data[0].payload.created)}
+								contentFormatter={(item) => {
+									const { value, unit } = formatTemperature(item.value, userSettings.unitTemp)
+									return decimalString(value) + " " + unit
+								}}
+								filter={filter}
+							/>
+						}
+					/>
+					{colors.map((key) => {
+						const filtered = filter && !key.toLowerCase().includes(filter.toLowerCase())
+						let strokeOpacity = filtered ? 0.1 : 1
+						return (
+							<Line
+								key={key}
+								dataKey={key}
+								name={key}
+								type="monotoneX"
+								dot={false}
+								strokeWidth={1.5}
+								stroke={newChartData.colors[key]}
+								strokeOpacity={strokeOpacity}
+								activeDot={{ opacity: filtered ? 0 : 1 }}
+								isAnimationActive={false}
+							/>
+						)
+					})}
+					{colors.length < 12 && <ChartLegend content={<ChartLegendContent />} />}
+				</LineChart>
 			</ChartContainer>
 		</div>
 	)

@@ -100,6 +100,14 @@ func (a *Agent) GetConfig() *Config {
 	return a.config
 }
 
+// GetPollerStatus returns the status and metrics for a specific device
+func (a *Agent) GetPollerStatus(deviceName string) (string, map[string]float64) {
+	if poller, exists := a.pollers[deviceName]; exists {
+		return poller.GetStatus(), poller.GetLastValues()
+	}
+	return "Not Found", make(map[string]float64)
+}
+
 // GetHubConfig returns the hub configuration
 func (a *Agent) GetHubConfig() *HubConfig {
 	return a.hubConfig

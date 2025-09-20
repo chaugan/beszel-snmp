@@ -2,6 +2,7 @@ package hub
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -93,36 +94,48 @@ func (acr *agentConnectRequest) agentConnect() (err error) {
 // verifyWsConn verifies the WebSocket connection using the agent's fingerprint and
 // SSH key signature, then adds the system to the system manager.
 func (acr *agentConnectRequest) verifyWsConn(conn *gws.Conn, fpRecords []ws.FingerprintRecord) (err error) {
+	fmt.Printf("[DEBUG] verifyWsConn: Starting WebSocket verification for %s\n", conn.RemoteAddr())
 	wsConn := ws.NewWsConnection(conn)
 
 	// must set wsConn in connection store before the read loop
 	conn.Session().Store("wsConn", wsConn)
+	fmt.Printf("[DEBUG] verifyWsConn: Stored wsConn in session for %s\n", conn.RemoteAddr())
 
 	// make sure connection is closed if there is an error
 	defer func() {
 		if err != nil {
+			fmt.Printf("[DEBUG] verifyWsConn: Error occurred, closing connection for %s: %v\n", conn.RemoteAddr(), err)
 			wsConn.Close([]byte(err.Error()))
 		}
 	}()
 
+	fmt.Printf("[DEBUG] verifyWsConn: Starting ReadLoop for %s\n", conn.RemoteAddr())
 	go conn.ReadLoop()
 
+	fmt.Printf("[DEBUG] verifyWsConn: Getting SSH key for %s\n", conn.RemoteAddr())
 	signer, err := acr.hub.GetSSHKey("")
 	if err != nil {
+		fmt.Printf("[DEBUG] verifyWsConn: Failed to get SSH key for %s: %v\n", conn.RemoteAddr(), err)
 		return err
 	}
 
+	fmt.Printf("[DEBUG] verifyWsConn: Starting fingerprint authentication for %s\n", conn.RemoteAddr())
 	agentFingerprint, err := wsConn.GetFingerprint(acr.token, signer, acr.isUniversalToken)
 	if err != nil {
+		fmt.Printf("[DEBUG] verifyWsConn: Failed to get fingerprint for %s: %v\n", conn.RemoteAddr(), err)
 		return err
 	}
+
+	fmt.Printf("[DEBUG] verifyWsConn: Got fingerprint for %s: %s\n", conn.RemoteAddr(), agentFingerprint.Fingerprint)
 
 	// Find or create the appropriate system for this token and fingerprint
 	fpRecord, err := acr.findOrCreateSystemForToken(fpRecords, agentFingerprint)
 	if err != nil {
+		fmt.Printf("[DEBUG] verifyWsConn: Failed to find/create system for %s: %v\n", conn.RemoteAddr(), err)
 		return err
 	}
 
+	fmt.Printf("[DEBUG] verifyWsConn: Adding WebSocket system for %s with system ID: %s\n", conn.RemoteAddr(), fpRecord.SystemId)
 	return acr.hub.sm.AddWebSocketSystem(fpRecord.SystemId, acr.agentSemVer, wsConn)
 }
 

@@ -231,13 +231,18 @@ func (sys *System) fetchDataFromAgent() (*system.CombinedData, error) {
 }
 
 func (sys *System) fetchDataViaWebSocket() (*system.CombinedData, error) {
+	fmt.Printf("[DEBUG] fetchDataViaWebSocket: Checking WebSocket connection for system %s\n", sys.Id)
 	if sys.WsConn == nil || !sys.WsConn.IsConnected() {
+		fmt.Printf("[DEBUG] fetchDataViaWebSocket: No WebSocket connection for system %s\n", sys.Id)
 		return nil, errors.New("no websocket connection")
 	}
+	fmt.Printf("[DEBUG] fetchDataViaWebSocket: WebSocket connection is active for system %s, requesting data\n", sys.Id)
 	err := sys.WsConn.RequestSystemData(sys.data)
 	if err != nil {
+		fmt.Printf("[DEBUG] fetchDataViaWebSocket: Failed to get data via WebSocket for system %s: %v\n", sys.Id, err)
 		return nil, err
 	}
+	fmt.Printf("[DEBUG] fetchDataViaWebSocket: Successfully got data via WebSocket for system %s\n", sys.Id)
 	return sys.data, nil
 }
 

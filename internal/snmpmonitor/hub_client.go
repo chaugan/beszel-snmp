@@ -30,14 +30,37 @@ type HubClient struct {
 
 type deviceClient struct {
 	gws.BuiltinEventHandler
-	deviceIP    string
-	deviceName  string
-	cfg         *HubConfig
-	conn        *gws.Conn
-	options     *gws.ClientOption
-	hubVerified bool
-	lastData    DeviceData
-	mu          sync.Mutex
+	deviceIP        string
+	deviceName      string
+	cfg             *HubConfig
+	conn            *gws.Conn
+	hubVerified     bool
+	lastData        DeviceData
+	mu              sync.Mutex
+	needsToken      bool // Whether this device needs token authentication
+	hasTriedNoToken bool // Whether we've tried connecting without token
+}
+
+// Helper functions for parsing URL and public key
+func parseURL(urlStr string) *url.URL {
+	u, err := url.Parse(urlStr)
+	if err != nil {
+		log.Printf("Failed to parse URL %s: %v", urlStr, err)
+		return nil
+	}
+	return u
+}
+
+func parsePublicKey(keyStr string) gossh.PublicKey {
+	if keyStr == "" {
+		return nil
+	}
+	pubKey, _, _, _, err := gossh.ParseAuthorizedKey([]byte(keyStr))
+	if err != nil {
+		log.Printf("Failed to parse public key: %v", err)
+		return nil
+	}
+	return pubKey
 }
 
 func NewHubClient(config HubConfig) (*HubClient, error) {
@@ -48,20 +71,13 @@ func NewHubClient(config HubConfig) (*HubClient, error) {
 	}
 
 	// Parse the hub URL
-	u, err := url.Parse(config.URL)
-	if err != nil {
-		return nil, fmt.Errorf("invalid hub URL: %w", err)
+	client.url = parseURL(config.URL)
+	if client.url == nil {
+		return nil, fmt.Errorf("invalid hub URL: %s", config.URL)
 	}
-	client.url = u
 
 	// Parse the public key
-	if strings.TrimSpace(config.Key) != "" {
-		pk, _, _, _, err := gossh.ParseAuthorizedKey([]byte(config.Key))
-		if err != nil {
-			return nil, fmt.Errorf("invalid hub key: %w", err)
-		}
-		client.pubKey = pk
-	}
+	client.pubKey = parsePublicKey(config.Key)
 
 	return client, nil
 }
@@ -111,9 +127,6 @@ func (c *HubClient) NotifyDevice(deviceData DeviceData) {
 }
 
 func (dc *deviceClient) getOptions(hubClient *HubClient) *gws.ClientOption {
-	if dc.options != nil {
-		return dc.options
-	}
 	if hubClient.url == nil {
 		return &gws.ClientOption{}
 	}
@@ -129,15 +142,21 @@ func (dc *deviceClient) getOptions(hubClient *HubClient) *gws.ClientOption {
 	joined := path.Join(u.Path, "api/beszel/agent-connect")
 	u.Path = "/" + strings.TrimPrefix(joined, "/")
 
-	dc.options = &gws.ClientOption{
-		Addr: u.String(),
-		RequestHeader: map[string][]string{
-			"User-Agent": []string{"Beszel-SNMP-Monitor"},
-			"X-Token":    []string{hubClient.token},
-			"X-Beszel":   []string{beszel.Version},
-		},
+	// Build headers
+	headers := map[string][]string{
+		"User-Agent": []string{"Beszel-SNMP-Monitor"},
+		"X-Beszel":   []string{beszel.Version},
 	}
-	return dc.options
+
+	// Only include token if this device needs authentication
+	if dc.needsToken && hubClient.token != "" {
+		headers["X-Token"] = []string{hubClient.token}
+	}
+
+	return &gws.ClientOption{
+		Addr:          u.String(),
+		RequestHeader: headers,
+	}
 }
 
 func (dc *deviceClient) connect(hubClient *HubClient) {
@@ -146,19 +165,42 @@ func (dc *deviceClient) connect(hubClient *HubClient) {
 		log.Printf("WebSocket not configured for device %s", dc.deviceIP)
 		return
 	}
-	if hubClient.token == "" {
-		log.Printf("Token not configured for device %s", dc.deviceIP)
-		return
-	}
 	if hubClient.pubKey == nil {
 		log.Printf("Hub public key not configured for device %s", dc.deviceIP)
 		return
 	}
 
-	log.Printf("Connecting device %s to hub at %s", dc.deviceIP, opt.Addr)
+	// Always use token for initial connections, then try without token for reconnections
+	if hubClient.token == "" {
+		log.Printf("Token not configured for device %s", dc.deviceIP)
+		return
+	}
+
+	// For first connection or if we haven't successfully connected yet, use token
+	if !dc.hasTriedNoToken || dc.needsToken {
+		dc.needsToken = true
+		dc.hasTriedNoToken = true
+		log.Printf("Using token authentication for device %s", dc.deviceIP)
+	}
+
+	log.Printf("Connecting device %s to hub at %s (needsToken: %v)", dc.deviceIP, opt.Addr, dc.needsToken)
 	conn, _, err := gws.NewClient(dc, opt)
 	if err != nil {
 		log.Printf("Failed to connect device %s to hub: %v", dc.deviceIP, err)
+
+		// If connection failed without token, try with token
+		if !dc.needsToken && hubClient.token != "" {
+			log.Printf("Connection without token failed for device %s, trying with token", dc.deviceIP)
+			dc.needsToken = true
+			time.AfterFunc(2*time.Second, func() { dc.connect(hubClient) })
+			return
+		}
+
+		// If connection failed with token, this might be a new agent requiring registration
+		if dc.needsToken && hubClient.token != "" {
+			log.Printf("Connection failed for device %s, this might be a new agent requiring registration", dc.deviceIP)
+		}
+
 		// Retry later
 		time.AfterFunc(5*time.Second, func() { dc.connect(hubClient) })
 		return
@@ -172,13 +214,34 @@ func (dc *deviceClient) connect(hubClient *HubClient) {
 func (dc *deviceClient) OnOpen(conn *gws.Conn) {
 	log.Printf("WebSocket connection opened for device %s", dc.deviceIP)
 	conn.SetDeadline(time.Now().Add(70 * time.Second))
+
+	// Mark that this device successfully connected
+	// Future reconnections can try without token first
+	dc.mu.Lock()
+	dc.needsToken = false
+	dc.mu.Unlock()
 }
 
 func (dc *deviceClient) OnClose(conn *gws.Conn, err error) {
 	log.Printf("WebSocket connection closed for device %s: %v", dc.deviceIP, err)
 	dc.hubVerified = false
+
+	// For reconnections, try without token first since we were successfully connected
+	dc.mu.Lock()
+	dc.needsToken = false // Try without token first for reconnection
+	dc.mu.Unlock()
+
 	// Reconnect with backoff
-	time.AfterFunc(5*time.Second, func() { dc.connect(&HubClient{config: dc.cfg}) })
+	time.AfterFunc(5*time.Second, func() {
+		// Create a temporary hub client for reconnection
+		tempClient := &HubClient{
+			config: dc.cfg,
+			token:  dc.cfg.Token,
+			url:    parseURL(dc.cfg.URL),
+			pubKey: parsePublicKey(dc.cfg.Key),
+		}
+		dc.connect(tempClient)
+	})
 }
 
 func (dc *deviceClient) OnPing(conn *gws.Conn, message []byte) {
@@ -288,8 +351,14 @@ func (dc *deviceClient) buildCombinedData() *system.CombinedData {
 	}
 
 	// Build info for this device
+	// Use device name if available, otherwise use IP address
+	systemName := dc.deviceIP
+	if dc.deviceName != "" && strings.TrimSpace(dc.deviceName) != "" {
+		systemName = strings.TrimSpace(dc.deviceName)
+	}
+
 	info := system.Info{
-		Hostname:     dc.deviceIP, // Use device IP as hostname
+		Hostname:     systemName,
 		AgentType:    "snmp",
 		AgentVersion: beszel.Version,
 	}

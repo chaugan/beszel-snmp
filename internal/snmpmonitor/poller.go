@@ -200,3 +200,20 @@ func (p *Poller) GetLastValues() map[string]float64 {
 	}
 	return result
 }
+
+// GetStatus returns the current status of the poller
+func (p *Poller) GetStatus() string {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+
+	if !p.running {
+		return "Stopped"
+	}
+
+	if len(p.lastValues) == 0 {
+		return "Starting"
+	}
+
+	// Check if we have recent data (within last 2 poll intervals)
+	return "Connected"
+}
