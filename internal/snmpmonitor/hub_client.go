@@ -340,6 +340,12 @@ func (dc *deviceClient) buildCombinedData() *system.CombinedData {
 	// Build stats from the device's metrics
 	stats := system.Stats{
 		Temperatures: make(map[string]float64),
+		Humidity:     make(map[string]float64),
+		CO2:          make(map[string]float64),
+		Pressure:     make(map[string]float64),
+		PM25:         make(map[string]float64),
+		PM10:         make(map[string]float64),
+		VOC:          make(map[string]float64),
 	}
 
 	// Convert device metrics to the appropriate stat categories
@@ -347,6 +353,18 @@ func (dc *deviceClient) buildCombinedData() *system.CombinedData {
 		switch strings.ToLower(metric.Category) {
 		case "temperature", "temp", "t":
 			stats.Temperatures[metric.Name] = metric.Value
+		case "humidity", "h":
+			stats.Humidity[metric.Name] = metric.Value
+		case "co2":
+			stats.CO2[metric.Name] = metric.Value
+		case "pressure", "pr":
+			stats.Pressure[metric.Name] = metric.Value
+		case "pm25", "pm2.5":
+			stats.PM25[metric.Name] = metric.Value
+		case "pm10":
+			stats.PM10[metric.Name] = metric.Value
+		case "voc":
+			stats.VOC[metric.Name] = metric.Value
 		}
 	}
 
@@ -363,7 +381,7 @@ func (dc *deviceClient) buildCombinedData() *system.CombinedData {
 		AgentVersion: beszel.Version,
 	}
 
-	// Add dashboard summaries
+	// Add dashboard summaries for all sensor types
 	if len(stats.Temperatures) > 0 {
 		var maxTemp float64
 		for _, temp := range stats.Temperatures {
@@ -372,6 +390,72 @@ func (dc *deviceClient) buildCombinedData() *system.CombinedData {
 			}
 		}
 		info.DashboardTemp = maxTemp
+	}
+
+	// Add humidity summary
+	if len(stats.Humidity) > 0 {
+		var maxHumidity float64
+		for _, humidity := range stats.Humidity {
+			if humidity > maxHumidity {
+				maxHumidity = humidity
+			}
+		}
+		info.DashboardHumidity = maxHumidity
+	}
+
+	// Add CO2 summary
+	if len(stats.CO2) > 0 {
+		var maxCO2 float64
+		for _, co2 := range stats.CO2 {
+			if co2 > maxCO2 {
+				maxCO2 = co2
+			}
+		}
+		info.DashboardCO2 = maxCO2
+	}
+
+	// Add pressure summary
+	if len(stats.Pressure) > 0 {
+		var maxPressure float64
+		for _, pressure := range stats.Pressure {
+			if pressure > maxPressure {
+				maxPressure = pressure
+			}
+		}
+		info.DashboardPressure = maxPressure
+	}
+
+	// Add PM2.5 summary
+	if len(stats.PM25) > 0 {
+		var maxPM25 float64
+		for _, pm25 := range stats.PM25 {
+			if pm25 > maxPM25 {
+				maxPM25 = pm25
+			}
+		}
+		info.DashboardPM25 = maxPM25
+	}
+
+	// Add PM10 summary
+	if len(stats.PM10) > 0 {
+		var maxPM10 float64
+		for _, pm10 := range stats.PM10 {
+			if pm10 > maxPM10 {
+				maxPM10 = pm10
+			}
+		}
+		info.DashboardPM10 = maxPM10
+	}
+
+	// Add VOC summary
+	if len(stats.VOC) > 0 {
+		var maxVOC float64
+		for _, voc := range stats.VOC {
+			if voc > maxVOC {
+				maxVOC = voc
+			}
+		}
+		info.DashboardVOC = maxVOC
 	}
 
 	return &system.CombinedData{

@@ -57,36 +57,104 @@ import { useVirtualizer, VirtualItem } from "@tanstack/react-virtual"
 import { pb } from "@/lib/api"
 import type { SystemStatsRecord } from "@/types"
 
-// Hook to fetch latest stats data for SNMP agents
+// Optimized hook to fetch latest stats data for SNMP agents using batch queries and real-time subscriptions
 function useSnmpStats(snmpData: SystemRecord[]) {
 	const [snmpStats, setSnmpStats] = useState<Record<string, SystemStatsRecord | null>>({})
 	
 	useEffect(() => {
-		const fetchStats = async () => {
-			const statsPromises = snmpData.map(async (system) => {
-				try {
-					const stats = await pb.collection<SystemStatsRecord>("system_stats").getList(1, 1, {
-						filter: pb.filter("system={:id}", { id: system.id }),
-						sort: "-created",
-						fields: "created,stats",
-					})
-					return { systemId: system.id, stats: stats.items[0] || null }
-				} catch (error) {
-					console.error(`Failed to fetch stats for ${system.name}:`, error)
-					return { systemId: system.id, stats: null }
-				}
-			})
-			
-			const results = await Promise.all(statsPromises)
-			const statsMap: Record<string, SystemStatsRecord | null> = {}
-			results.forEach(({ systemId, stats }) => {
-				statsMap[systemId] = stats
-			})
-			setSnmpStats(statsMap)
+		// Only fetch if we have SNMP data
+		if (snmpData.length === 0) {
+			return
 		}
 		
-		if (snmpData.length > 0) {
-			fetchStats()
+		const systemIds = snmpData.map(system => system.id)
+		let unsubscribe: (() => void) | undefined
+		
+		const fetchStats = async () => {
+			try {
+				// Use a single optimized query to get latest stats for all SNMP systems
+				// Build filter for multiple system IDs
+				const systemIdFilter = systemIds.map(id => `system='${id}'`).join(' || ')
+				const filter = `(${systemIdFilter}) && type='1m'`
+				
+				const stats = await pb.collection<SystemStatsRecord>("system_stats").getFullList({
+					filter: filter,
+					sort: "-created",
+					fields: "id,created,system,stats,type",
+				})
+				
+				// Group stats by system ID and take only the latest for each system
+				const statsMap: Record<string, SystemStatsRecord | null> = {}
+				const latestBySystem: Record<string, SystemStatsRecord> = {}
+				
+				// Since results are sorted by -created, first occurrence of each system is the latest
+				for (const stat of stats) {
+					if (!(stat.system in latestBySystem)) {
+						latestBySystem[stat.system] = stat
+					}
+				}
+				
+				// Create final map ensuring all systems have an entry
+				systemIds.forEach(systemId => {
+					statsMap[systemId] = latestBySystem[systemId] || null
+				})
+				
+				setSnmpStats(statsMap)
+			} catch (error) {
+				console.error("Failed to fetch SNMP stats:", error)
+				// Set all to null on error
+				const errorMap: Record<string, SystemStatsRecord | null> = {}
+				systemIds.forEach(systemId => {
+					errorMap[systemId] = null
+				})
+				setSnmpStats(errorMap)
+			}
+		}
+		
+		// Subscribe to real-time updates for system_stats collection
+		const subscribeToUpdates = async () => {
+			try {
+				unsubscribe = await pb.collection<SystemStatsRecord>("system_stats").subscribe(
+					"*",
+					({ action, record }) => {
+						// Only process records for our SNMP systems
+						if (!systemIds.includes(record.system)) {
+							return
+						}
+						
+						setSnmpStats(prevStats => {
+							const newStats = { ...prevStats }
+							
+							if (action === "create" || action === "update") {
+								// Update with the latest record for this system
+								newStats[record.system] = record
+							} else if (action === "delete") {
+								// Set to null if record is deleted
+								newStats[record.system] = null
+							}
+							
+							return newStats
+						})
+					},
+					{
+						filter: `(${systemIds.map(id => `system='${id}'`).join(' || ')}) && type='1m'`,
+						fields: "id,created,system,stats,type",
+					}
+				)
+			} catch (error) {
+				console.error("Failed to subscribe to SNMP stats updates:", error)
+			}
+		}
+		
+		// Initial fetch
+		fetchStats()
+		
+		// Subscribe to real-time updates
+		subscribeToUpdates()
+		
+		// Cleanup subscription on unmount
+		return () => {
+			unsubscribe?.()
 		}
 	}, [snmpData])
 	

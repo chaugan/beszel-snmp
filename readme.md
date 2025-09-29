@@ -81,6 +81,7 @@ This repository includes an SNMP Monitor that can be deployed as a Docker contai
 - **Dynamic Configuration**: Changes made through the web interface take effect immediately
 - **Environment Variable Support**: Can be configured via environment variables or web interface
 - **Docker Ready**: Pre-built Docker image available on Docker Hub
+- **Backward Compatibility**: Hub supports both regular Beszel agents and SNMP monitors seamlessly
 
 ### Quick Start
 
@@ -159,6 +160,24 @@ The SNMP Monitor supports configuration through:
 - **voc** - VOC sensors (ppb)
 
 The hub UI detects `AgentType=snmp` and only renders sensor charts that have data. Each device appears as a separate system in the Beszel UI with its own IP address and unique fingerprint.
+
+## Recent Updates
+
+### Backward Compatibility Enhancement
+
+The hub now includes comprehensive backward compatibility support:
+
+- **Dual Agent Support**: Seamlessly handles both regular Beszel agents (legacy format) and SNMP monitors (new format)
+- **Automatic Format Detection**: Automatically detects and converts between different CBOR data formats
+- **Zero Downtime**: Existing deployments continue to work without any changes
+- **Enhanced Debugging**: Improved logging and error handling for better troubleshooting
+
+### What This Means
+
+- ✅ **Regular Beszel agents** continue to work as before
+- ✅ **SNMP monitors** work with the new optimized format  
+- ✅ **Mixed environments** with both agent types work seamlessly
+- ✅ **Future-proof** architecture supports new agent types
 
 ## Help and discussion
 

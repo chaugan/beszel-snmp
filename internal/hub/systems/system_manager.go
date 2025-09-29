@@ -26,8 +26,9 @@ const (
 	paused  string = "paused"  // System monitoring is paused
 	pending string = "pending" // System is waiting on initial connection result
 
-	// interval is the default update interval in milliseconds (60 seconds)
-	interval int = 60_000
+	// interval is the default update interval in milliseconds (30 seconds)
+	// Reduced from 60 seconds to match SNMP monitor polling frequency for faster dashboard updates
+	interval int = 30_000
 	// interval int = 10_000 // Debug interval for faster updates
 
 	// sessionTimeout is the maximum time to wait for SSH connections
@@ -300,6 +301,15 @@ func (sm *SystemManager) AddWebSocketSystem(systemId string, agentVersion semver
 	if err := sm.AddRecord(systemRecord, system); err != nil {
 		return err
 	}
+
+	// Immediately fetch data for WebSocket connections to provide instant dashboard updates
+	// This ensures SNMP monitor data appears immediately instead of waiting for the next polling cycle
+	go func() {
+		if err := system.update(); err != nil {
+			sm.hub.Logger().Warn("Failed to fetch initial data from WebSocket agent", "system", systemId, "err", err)
+		}
+	}()
+
 	return nil
 }
 
