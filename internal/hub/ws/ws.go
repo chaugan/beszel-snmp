@@ -196,7 +196,10 @@ func (ws *WsConn) RequestSystemData(data *system.CombinedData) error {
 		fmt.Printf("[DEBUG] RequestSystemData: First %d bytes: %x\n", displayLen, rawData[:displayLen])
 	}
 
-	err = cbor.Unmarshal(rawData, data)
+	// Decode into a fresh struct to avoid concurrent writes to shared maps
+	// when multiple updates happen simultaneously.
+	var tmp system.CombinedData
+	err = cbor.Unmarshal(rawData, &tmp)
 	if err != nil {
 		fmt.Printf("[DEBUG] RequestSystemData: Failed to unmarshal system data: %v\n", err)
 		// Try to unmarshal as raw interface{} to see what we actually got
@@ -207,7 +210,7 @@ func (ws *WsConn) RequestSystemData(data *system.CombinedData) error {
 
 		// Try backward compatibility: unmarshal as map and convert to struct
 		fmt.Printf("[DEBUG] RequestSystemData: Attempting backward compatibility conversion\n")
-		err = ws.convertMapToCombinedData(rawData, data)
+		err = ws.convertMapToCombinedData(rawData, &tmp)
 		if err != nil {
 			fmt.Printf("[DEBUG] RequestSystemData: Backward compatibility conversion failed: %v\n", err)
 		} else {
@@ -215,6 +218,10 @@ func (ws *WsConn) RequestSystemData(data *system.CombinedData) error {
 		}
 	} else {
 		fmt.Printf("[DEBUG] RequestSystemData: Successfully unmarshaled system data\n")
+	}
+	// Overwrite the destination only once after successful decode/convert
+	if err == nil {
+		*data = tmp
 	}
 	return err
 }
