@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/url"
 	"path"
 	"strings"
@@ -39,6 +40,8 @@ type deviceClient struct {
 	mu              sync.Mutex
 	needsToken      bool // Whether this device needs token authentication
 	hasTriedNoToken bool // Whether we've tried connecting without token
+	backoff         time.Duration
+	heartbeat       *time.Ticker
 }
 
 // Helper functions for parsing URL and public key
@@ -201,8 +204,20 @@ func (dc *deviceClient) connect(hubClient *HubClient) {
 			log.Printf("Connection failed for device %s, this might be a new agent requiring registration", dc.deviceIP)
 		}
 
-		// Retry later
-		time.AfterFunc(5*time.Second, func() { dc.connect(hubClient) })
+		// Retry later with exponential backoff + jitter (cap at 60s)
+		if dc.backoff == 0 {
+			dc.backoff = 5 * time.Second
+		} else {
+			dc.backoff *= 2
+			if dc.backoff > 60*time.Second {
+				dc.backoff = 60 * time.Second
+			}
+		}
+		// jitter +/-20%
+		jitterFrac := 0.2
+		jitter := time.Duration((1.0 + (rand.Float64()*2-1)*jitterFrac) * float64(dc.backoff))
+		log.Printf("Reconnecting device %s in %v", dc.deviceIP, jitter)
+		time.AfterFunc(jitter, func() { dc.connect(hubClient) })
 		return
 	}
 
@@ -215,6 +230,24 @@ func (dc *deviceClient) OnOpen(conn *gws.Conn) {
 	log.Printf("WebSocket connection opened for device %s", dc.deviceIP)
 	conn.SetDeadline(time.Now().Add(70 * time.Second))
 
+	// reset backoff after successful connect
+	dc.backoff = 5 * time.Second
+
+	// start heartbeat pings every 25s to keep connection fresh
+	if dc.heartbeat != nil {
+		dc.heartbeat.Stop()
+	}
+	dc.heartbeat = time.NewTicker(25 * time.Second)
+	go func(c *gws.Conn, t *time.Ticker, ip string) {
+		for range t.C {
+			if c == nil {
+				return
+			}
+			c.SetDeadline(time.Now().Add(70 * time.Second))
+			_ = c.WritePing(nil)
+		}
+	}(conn, dc.heartbeat, dc.deviceIP)
+
 	// Mark that this device successfully connected
 	// Future reconnections can try without token first
 	dc.mu.Lock()
@@ -225,14 +258,26 @@ func (dc *deviceClient) OnOpen(conn *gws.Conn) {
 func (dc *deviceClient) OnClose(conn *gws.Conn, err error) {
 	log.Printf("WebSocket connection closed for device %s: %v", dc.deviceIP, err)
 	dc.hubVerified = false
+	if dc.heartbeat != nil {
+		dc.heartbeat.Stop()
+		dc.heartbeat = nil
+	}
 
 	// For reconnections, try without token first since we were successfully connected
 	dc.mu.Lock()
 	dc.needsToken = false // Try without token first for reconnection
 	dc.mu.Unlock()
 
-	// Reconnect with backoff
-	time.AfterFunc(5*time.Second, func() {
+	// Reconnect with current backoff (will be increased on connect failure)
+	if dc.backoff == 0 {
+		dc.backoff = 5 * time.Second
+	}
+	bo := dc.backoff
+	// jitter +/-20%
+	jitterFrac := 0.2
+	jitter := time.Duration((1.0 + (rand.Float64()*2-1)*jitterFrac) * float64(bo))
+	log.Printf("Reconnecting device %s in %v", dc.deviceIP, jitter)
+	time.AfterFunc(jitter, func() {
 		// Create a temporary hub client for reconnection
 		tempClient := &HubClient{
 			config: dc.cfg,

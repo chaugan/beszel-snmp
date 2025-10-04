@@ -241,8 +241,10 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 			let systemData = (cache.get(ss_cache_key) || []) as SystemStatsRecord[]
 			if (systemStats.status === "fulfilled" && systemStats.value.length) {
 				systemData = systemData.concat(addEmptyValues(systemData, systemStats.value, expectedInterval))
-				if (systemData.length > 120) {
-					systemData = systemData.slice(-100)
+				const keepCap = chartTime === "1h" ? 300 : 100
+				const trimThreshold = chartTime === "1h" ? 360 : 120
+				if (systemData.length > trimThreshold) {
+					systemData = systemData.slice(-keepCap)
 				}
 				cache.set(ss_cache_key, systemData)
 			}
@@ -252,8 +254,10 @@ export default memo(function SystemDetail({ name }: { name: string }) {
 			let containerData = (cache.get(cs_cache_key) || []) as ContainerStatsRecord[]
 			if (containerStats.status === "fulfilled" && containerStats.value.length) {
 				containerData = containerData.concat(addEmptyValues(containerData, containerStats.value, expectedInterval))
-				if (containerData.length > 120) {
-					containerData = containerData.slice(-100)
+				const keepCap = chartTime === "1h" ? 300 : 100
+				const trimThreshold = chartTime === "1h" ? 360 : 120
+				if (containerData.length > trimThreshold) {
+					containerData = containerData.slice(-keepCap)
 				}
 				cache.set(cs_cache_key, containerData)
 			}
