@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 )
 
 // WebServer handles the web interface for configuration
@@ -725,10 +726,50 @@ func (ws *WebServer) updateConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Save config to disk for persistence across restarts
+	configPath := ws.agent.GetConfigPath()
+	if configPath == "" {
+		// Fallback to environment variable if configPath is not set
+		configPath = os.Getenv("CONFIG_PATH")
+		if configPath == "" {
+			configPath = "/etc/beszel/snmp-monitor.json"
+		}
+	}
+
+	// Create a complete config with all fields for saving
+	fullConfig := &Config{
+		Devices: newConfig.Devices,
+		Hub:     newConfig.Hub,
+		WebServer: newConfig.WebServer,
+	}
+
+	// If hub config wasn't provided, preserve existing hub config
+	if fullConfig.Hub == nil {
+		hubConfig := ws.agent.GetHubConfig()
+		if hubConfig != nil && (hubConfig.URL != "" || hubConfig.Token != "" || hubConfig.Key != "") {
+			fullConfig.Hub = hubConfig
+		}
+	}
+
+	// If web server config wasn't provided, preserve existing web server config
+	if fullConfig.WebServer == nil {
+		webServerConfig := ws.agent.GetWebServerConfig()
+		if webServerConfig != nil && webServerConfig.Port > 0 {
+			fullConfig.WebServer = webServerConfig
+		}
+	}
+
+	if err := fullConfig.SaveConfig(configPath); err != nil {
+		log.Printf("Warning: Failed to save config to disk: %v", err)
+		// Continue anyway since in-memory config was updated
+	} else {
+		log.Printf("Configuration saved to %s", configPath)
+	}
+
 	// Send success response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"status": "success", "message": "Configuration updated successfully"})
+	json.NewEncoder(w).Encode(map[string]string{"status": "success", "message": "Configuration updated and saved successfully"})
 }
 
 // handleDevices handles device API requests

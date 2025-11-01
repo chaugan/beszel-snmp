@@ -372,9 +372,32 @@ func (dc *deviceClient) handleGetDataRequest(conn *gws.Conn) {
 }
 
 func (dc *deviceClient) generateDeviceFingerprint() string {
-	// Generate a unique fingerprint for this specific SNMP device
-	base := fmt.Sprintf("snmp-device-%s-%s", dc.deviceName, dc.deviceIP)
-	sum := sha256.Sum256([]byte(base))
+	// Generate a unique, consistent fingerprint for this specific SNMP device
+	// Combine SSH public key with device identifier to ensure uniqueness per device
+	// while maintaining consistency across runs
+	
+	if dc.cfg.Key == "" {
+		// Fallback to device-based fingerprint if no key is configured
+		base := fmt.Sprintf("snmp-device-%s-%s", dc.deviceName, dc.deviceIP)
+		sum := sha256.Sum256([]byte(base))
+		return hex.EncodeToString(sum[:24])
+	}
+
+	// Parse the SSH public key from config
+	pubKey, _, _, _, err := gossh.ParseAuthorizedKey([]byte(dc.cfg.Key))
+	if err != nil {
+		log.Printf("Failed to parse public key for fingerprint generation: %v, falling back to device-based fingerprint", err)
+		base := fmt.Sprintf("snmp-device-%s-%s", dc.deviceName, dc.deviceIP)
+		sum := sha256.Sum256([]byte(base))
+		return hex.EncodeToString(sum[:24])
+	}
+
+	// Generate fingerprint from the public key + device identifier
+	// This ensures each device has a unique fingerprint while maintaining consistency
+	keyBytes := pubKey.Marshal()
+	deviceID := fmt.Sprintf("%s-%s", dc.deviceIP, dc.deviceName)
+	combined := append(keyBytes, []byte(deviceID)...)
+	sum := sha256.Sum256(combined)
 	return hex.EncodeToString(sum[:24])
 }
 

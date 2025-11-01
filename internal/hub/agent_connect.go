@@ -69,10 +69,8 @@ func (acr *agentConnectRequest) agentConnect() (err error) {
 
 	// Find matching fingerprint records for this token
 	fpRecords := getFingerprintRecordsByToken(acr.token, acr.hub)
-	if len(fpRecords) == 0 && !acr.isUniversalToken {
-		// Invalid token - no records found and not a universal token
-		return acr.sendResponseError(acr.res, http.StatusUnauthorized, "Invalid token")
-	}
+	// Allow connections even without fingerprint records - they will be created during verification
+	// This enables first-time device connections
 
 	// Validate agent version
 	acr.agentSemVer, err = semver.Parse(agentVersion)
@@ -189,15 +187,16 @@ func (acr *agentConnectRequest) findOrCreateSystemForToken(fpRecords []ws.Finger
 }
 
 // handleNoRecords handles the case where no fingerprint records are found for a token.
-// A new system is created if the token is a valid universal token.
+// A new system is created for universal tokens or for regular tokens on first connection.
 func (acr *agentConnectRequest) handleNoRecords(agentFingerprint common.FingerprintResponse) (ws.FingerprintRecord, error) {
-	var fpRecord ws.FingerprintRecord
-
-	if !acr.isUniversalToken || acr.userId == "" {
-		return fpRecord, errors.New("no matching fingerprints")
+	// For universal tokens, use the existing logic
+	if acr.isUniversalToken && acr.userId != "" {
+		return acr.createNewSystemForUniversalToken(agentFingerprint)
 	}
 
-	return acr.createNewSystemForUniversalToken(agentFingerprint)
+	// For regular tokens, create a new system on first connection
+	// This allows new devices to connect without pre-existing fingerprint records
+	return acr.createNewSystemForRegularToken(agentFingerprint)
 }
 
 // handleSingleRecord handles the case with a single fingerprint record. It validates
@@ -250,6 +249,41 @@ func (acr *agentConnectRequest) createNewSystemForUniversalToken(agentFingerprin
 	fpRecord.Token = acr.token
 
 	systemId, err := acr.createSystem(agentFingerprint)
+	if err != nil {
+		return fpRecord, err
+	}
+	fpRecord.SystemId = systemId
+
+	// Set the fingerprint for the new system
+	if err := acr.hub.SetFingerprint(&fpRecord, agentFingerprint.Fingerprint); err != nil {
+		return fpRecord, err
+	}
+
+	// Update the record with the fingerprint that was set
+	fpRecord.Fingerprint = agentFingerprint.Fingerprint
+
+	return fpRecord, nil
+}
+
+// createNewSystemForRegularToken creates a new system and fingerprint record for a regular token.
+// This allows new devices to connect on first connection without pre-existing records.
+func (acr *agentConnectRequest) createNewSystemForRegularToken(agentFingerprint common.FingerprintResponse) (ws.FingerprintRecord, error) {
+	var fpRecord ws.FingerprintRecord
+
+	// Get the first user as default (similar to config.go behavior)
+	users, err := acr.hub.FindAllRecords("users", dbx.NewExp("id != ''"))
+	if err != nil || len(users) == 0 {
+		return fpRecord, fmt.Errorf("no users found, cannot create system")
+	}
+	defaultUserId := users[0].Id
+
+	fpRecord.Token = acr.token
+
+	// Temporarily set userId for createSystem
+	originalUserId := acr.userId
+	acr.userId = defaultUserId
+	systemId, err := acr.createSystem(agentFingerprint)
+	acr.userId = originalUserId
 	if err != nil {
 		return fpRecord, err
 	}
